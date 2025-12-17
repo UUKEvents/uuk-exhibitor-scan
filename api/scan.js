@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).end();
   }
 
-  const { ticket_id, exhibitor_id, exhibitor_name, consent } = req.body;
+  const { ticket_id, exhibitor_id, consent, device_id } = req.body;
 
   if (!ticket_id || !exhibitor_id) {
     return res.status(400).json({ error: "Missing fields" });
@@ -18,10 +18,9 @@ export default async function handler(req, res) {
   const payload = {
     ticket_id,
     exhibitor_id,
-    exhibitor_name,
     consent,
     scanned_at: new Date().toISOString(),
-    source: "vercel-exhibitor-scan",
+    source: device_id,
   };
 
   try {

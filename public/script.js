@@ -3,11 +3,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const params = new URLSearchParams(window.location.search);
   const exhibitorId = params.get("exhibitor_id");
-  const exhibitorName = params.get("exhibitor_name") || "Exhibitor Scan";
+  const exhibitorName = exhibitorId || "Exhibitor Scan";
+
+  let deviceId = localStorage.getItem("device_id");
+  if (!deviceId) {
+    deviceId = crypto.randomUUID(); // or any random string
+    const deviceId = `${navigator.userAgent}-${crypto.randomUUID()}`;
+  }
+  console.log("Device ID:", deviceId);
 
   if (!exhibitorId) {
     alert("Missing exhibitor_id");
-    console.error("Missing exhibitor_id in URL params");
+    console.error("Missing Exhibitor ID. Please use provided link.");
   }
 
   // UI elements
@@ -94,8 +101,8 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({
           ticket_id: ticketId,
           exhibitor_id: exhibitorId,
-          exhibitor_name: exhibitorName,
           consent,
+          device_id: deviceId,
         }),
       });
 
