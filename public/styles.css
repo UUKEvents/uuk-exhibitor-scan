@@ -6,36 +6,40 @@ body {
   background-color: #f2f2f2; /* UUK grey background */
   color: #000;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
   min-height: 100vh;
-}
-
-/* Wrapper for centering content */
-main {
-  width: 100%;
-  max-width: 420px;
-  padding: 2rem;
-  text-align: center; /* center text and elements */
 }
 
 /* Header */
 header {
   background-color: #1d70eb; /* UUK brand blue */
   padding: 1rem;
-  color: #ffffff; /* white text */
+  color: #ffffff;
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-shrink: 0;
 }
 
 header img {
-  max-height: 2.5rem;
+  max-height: 3rem; /* slightly larger logo */
+}
+
+/* Main content wrapper */
+main {
+  flex: 1; /* take remaining space */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* vertical centering */
+  align-items: center; /* horizontal centering */
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem;
+  text-align: center;
 }
 
 /* Headings */
 h1 {
-  font-family: Georgia, "Times New Roman", Times, serif;
   font-size: 1.8rem;
   margin: 1rem 0;
   font-weight: bold;
@@ -64,12 +68,13 @@ button:disabled {
 #scanner,
 #consent,
 #result {
-  margin: 1rem auto;
+  margin: 1rem 0;
   background: #ffffff;
   padding: 1.5rem;
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   text-align: center;
+  width: 100%;
 }
 
 /* Status text */
