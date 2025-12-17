@@ -5,36 +5,51 @@
   <meta charset="UTF-8" />
   <title>Exhibitor QR Scan</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta http-equiv="Permissions-Policy" content="camera=(self)" />
+  <meta http-equiv="Permissions-Policy" content="camera=(self)">
+
+  <!-- Favicon -->
   <link rel="icon" href="/favicon.ico" />
+
+  <!-- CSS -->
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- html5-qrcode library -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 
 <body>
+
+  <!-- Header with logo -->
   <header>
     <img src="/UUK_White_RGB.svg" alt="Universities UK logo" />
   </header>
+
+  <!-- Main content wrapper -->
   <main>
     <h1 id="exhibitor-name">Exhibitor Scan</h1>
 
+    <!-- Scanner section -->
     <div id="scanner">
       <div id="qr-reader"></div>
       <button id="start">Start scanning</button>
       <p id="status">Camera inactive</p>
     </div>
 
+    <!-- Consent section (hidden until QR scan) -->
     <div id="consent" hidden>
       <p><strong>Consent</strong></p>
-      <p id="consent-text"></p>
+      <p id="consent-text">Do you consent to share your details with this exhibitor after the event?</p>
       <button id="yes">Yes, I consent</button>
       <button id="no">No</button>
     </div>
 
+    <!-- Scan result section (hidden until confirmation) -->
     <div id="result" hidden></div>
   </main>
 
-  <script src="https://unpkg.com/html5-qrcode"></script>
+  <!-- Custom JS -->
   <script src="script.js"></script>
+
 </body>
 
 </html>
