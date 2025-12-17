@@ -3,7 +3,8 @@ body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f2f2f2; /* UUK grey background */
+  background-color: #f2f2f2;
+  /* UUK grey background */
   color: #000;
   display: flex;
   flex-direction: column;
@@ -12,7 +13,8 @@ body {
 
 /* Header */
 header {
-  background-color: #1d70eb; /* UUK brand blue */
+  background-color: #1d70eb;
+  /* UUK brand blue */
   padding: 1rem;
   color: #ffffff;
   display: flex;
@@ -22,23 +24,27 @@ header {
 }
 
 header img {
-  max-height: 3rem; /* slightly larger logo */
+  max-height: 3rem;
+  /* slightly larger logo */
 }
 
 /* Main content wrapper */
 main {
-  flex: 1; /* take remaining space */
+  flex: 1;
+  /* take remaining space */
   display: flex;
   flex-direction: column;
-  align-items: center; /* horizontal centering */
+  align-self: center;
+  align-items: center;
+  /* horizontal centering */
   width: 100%;
-  max-width: 420px;
-  padding: 2rem;
+  box-sizing: border-box;
   text-align: center;
 }
 
 /* Headings */
 h1 {
+  font-family: Georgia, 'Times New Roman', Times, serif;
   font-size: 1.8rem;
   margin: 1rem 0;
   font-weight: bold;
@@ -69,7 +75,7 @@ button:disabled {
 #result {
   margin: 1rem 0;
   background: #ffffff;
-  padding: 1.5rem;
+  padding-top: 1.5rem;
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   text-align: center;
@@ -99,5 +105,6 @@ button:disabled {
 #result {
   font-size: 1.2rem;
   font-weight: bold;
-  color: #02866d; /* UUK green accent for confirmation */
+  color: #02866d;
+  /* UUK green accent for confirmation */
 }
