@@ -1,33 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Exhibitor QR Scan</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta http-equiv="Permissions-Policy" content="camera=(self)" />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <main>
-      <h1 id="exhibitor-name">Exhibitor Scan</h1>
 
-      <div id="scanner">
-        <div id="qr-reader"></div>
-        <button id="start">Start scanning</button>
-        <p id="status">Camera inactive</p>
-      </div>
+<head>
+  <meta charset="UTF-8" />
+  <title>Exhibitor QR Scan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Permissions-Policy" content="camera=(self)" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
 
-      <div id="consent" hidden>
-        <p><strong>Consent</strong></p>
-        <p id="consent-text"></p>
-        <button id="yes">Yes, I consent</button>
-        <button id="no">No</button>
-      </div>
+<body>
+  <main>
+    <h1 id="exhibitor-name">Exhibitor Scan</h1>
 
-      <div id="result" hidden></div>
-    </main>
+    <div id="scanner">
+      <div id="qr-reader"></div>
+      <button id="start">Start scanning</button>
+      <p id="status">Camera inactive</p>
+    </div>
 
-    <script src="https://unpkg.com/html5-qrcode"></script>
-    <script src="script.js"></script>
-  </body>
+    <div id="consent" hidden>
+      <p><strong>Consent</strong></p>
+      <p id="consent-text"></p>
+      <button id="yes">Yes, I consent</button>
+      <button id="no">No</button>
+    </div>
+
+    <div id="result" hidden></div>
+  </main>
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script src="script.js"></script>
+</body>
+
 </html>
