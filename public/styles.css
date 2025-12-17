@@ -1,4 +1,8 @@
 /* Base typography and body */
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -38,7 +42,7 @@ main {
   align-items: center;
   /* horizontal centering */
   width: 100%;
-  box-sizing: border-box;
+  padding: 2rem;
   text-align: center;
 }
 
@@ -75,7 +79,7 @@ button:disabled {
 #result {
   margin: 1rem 0;
   background: #ffffff;
-  padding-top: 1.5rem;
+  padding: 1.5rem;
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   text-align: center;
