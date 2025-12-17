@@ -9,13 +9,34 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing fields" });
   }
 
-  // TODO: Replace with real storage
-  console.log({
+  const webhookUrl = process.env.N8N_WEBHOOK_URL;
+
+  if (!webhookUrl) {
+    return res.status(500).json({ error: "Webhook not configured" });
+  }
+
+  const payload = {
     ticket_id,
     exhibitor_id,
     consent,
     scanned_at: new Date().toISOString(),
-  });
+    source: "vercel-exhibitor-scan",
+  };
 
-  res.status(200).json({ ok: true });
+  try {
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error("n8n webhook error");
+    }
+
+    return res.status(200).json({ ok: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Failed to send to n8n" });
+  }
 }
