@@ -5,11 +5,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const exhibitorId = params.get("exhibitor_id");
   const exhibitorName = exhibitorId || "Exhibitor Scan";
 
-  deviceId = crypto.randomUUID(); // or any random string
-  const deviceId = `${navigator.userAgent}-${crypto.randomUUID()}`;
-
-  console.log("Device ID:", deviceId);
-
   if (!exhibitorId) {
     alert("Missing exhibitor_id");
     console.error("Missing Exhibitor ID. Please use provided link.");
@@ -90,6 +85,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   async function sendScan(consent) {
+    deviceId = crypto.randomUUID(); // or any random string
+    const deviceId = `${navigator.userAgent}-${crypto.randomUUID()}`;
+
+    console.log("Device ID:", deviceId);
     console.log("Sending scan, consent:", consent);
 
     try {
