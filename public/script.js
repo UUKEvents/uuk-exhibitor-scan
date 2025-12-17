@@ -85,10 +85,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   async function sendScan(consent) {
-    deviceId = crypto.randomUUID(); // or any random string
-    const deviceId = `${navigator.userAgent}-${crypto.randomUUID()}`;
-
-    console.log("Device ID:", deviceId);
     console.log("Sending scan, consent:", consent);
 
     try {
@@ -99,7 +95,6 @@ document.addEventListener("DOMContentLoaded", () => {
           ticket_id: ticketId,
           exhibitor_id: exhibitorId,
           consent,
-          device_id: deviceId,
         }),
       });
 
