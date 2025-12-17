@@ -5,11 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const exhibitorId = params.get("exhibitor_id");
   const exhibitorName = exhibitorId || "Exhibitor Scan";
 
-  let deviceId = localStorage.getItem("device_id");
-  if (!deviceId) {
-    deviceId = crypto.randomUUID(); // or any random string
-    const deviceId = `${navigator.userAgent}-${crypto.randomUUID()}`;
-  }
+  deviceId = crypto.randomUUID(); // or any random string
+  const deviceId = `${navigator.userAgent}-${crypto.randomUUID()}`;
+
   console.log("Device ID:", deviceId);
 
   if (!exhibitorId) {
