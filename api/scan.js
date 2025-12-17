@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).end();
   }
 
-  const { ticket_id, exhibitor_id, consent } = req.body;
+  const { ticket_id, exhibitor_id, exhibitor_name, consent } = req.body;
 
   if (!ticket_id || !exhibitor_id) {
     return res.status(400).json({ error: "Missing fields" });
@@ -18,6 +18,7 @@ export default async function handler(req, res) {
   const payload = {
     ticket_id,
     exhibitor_id,
+    exhibitor_name,
     consent,
     scanned_at: new Date().toISOString(),
     source: "vercel-exhibitor-scan",
@@ -30,9 +31,7 @@ export default async function handler(req, res) {
       body: JSON.stringify(payload),
     });
 
-    if (!response.ok) {
-      throw new Error("n8n webhook error");
-    }
+    if (!response.ok) throw new Error("n8n webhook error");
 
     return res.status(200).json({ ok: true });
   } catch (error) {

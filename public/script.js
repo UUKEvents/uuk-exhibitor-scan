@@ -1,16 +1,4 @@
-const exhibitorId = new URLSearchParams(window.location.search).get(
-  "exhibitor_id"
-);
-
-if (!exhibitorId) {
-  alert("Missing exhibitor_id");
-}
-
-let ticketId = null;
-let html5QrCode = null;
-
-const status = document.getElementById("status");
-const startButton = document.getElementById("start");
+const params = new URLSearchParams(window.location.search);
 
 startButton.addEventListener("click", async () => {
   startButton.disabled = true;
@@ -21,10 +9,7 @@ startButton.addEventListener("click", async () => {
   try {
     await html5QrCode.start(
       { facingMode: "environment" },
-      {
-        fps: 10,
-        qrbox: 250,
-      },
+      { fps: 10, qrbox: 250 },
       onScanSuccess
     );
 
@@ -37,16 +22,18 @@ startButton.addEventListener("click", async () => {
 });
 
 function onScanSuccess(decodedText) {
-  const extracted = extractTicketId(decodedText);
+  if (scanLocked) return;
 
+  const extracted = extractTicketId(decodedText);
   if (!extracted) return;
 
+  scanLocked = true; // lock immediately
   ticketId = extracted;
 
-  html5QrCode.stop();
-
-  document.getElementById("scanner").hidden = true;
-  document.getElementById("consent").hidden = false;
+  html5QrCode.stop().then(() => {
+    document.getElementById("scanner").hidden = true;
+    document.getElementById("consent").hidden = false;
+  });
 }
 
 function extractTicketId(text) {
@@ -65,6 +52,7 @@ async function sendScan(consent) {
     body: JSON.stringify({
       ticket_id: ticketId,
       exhibitor_id: exhibitorId,
+      exhibitor_name: exhibitorName,
       consent,
     }),
   });
@@ -76,7 +64,8 @@ async function sendScan(consent) {
     ? "Consent recorded. Thank you."
     : "Consent declined.";
 
-  setTimeout(() => location.reload(), 2000);
+  // reset after short delay
+  setTimeout(() => location.reload(), 2500);
 }
 
 // Consent buttons

@@ -9,7 +9,7 @@
   </head>
   <body>
     <main>
-      <h1>Exhibitor Scan</h1>
+      <h1 id="exhibitor-name">Exhibitor Scan</h1>
 
       <div id="scanner">
         <div id="qr-reader"></div>
@@ -18,10 +18,8 @@
       </div>
 
       <div id="consent" hidden>
-        <p>
-          Do you consent to share your details with this exhibitor after the
-          event?
-        </p>
+        <p><strong>Consent</strong></p>
+        <p id="consent-text"></p>
         <button id="yes">Yes, I consent</button>
         <button id="no">No</button>
       </div>
