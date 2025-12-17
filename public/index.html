@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Exhibitor QR Scan</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Permissions-Policy" content="camera=(self)" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -11,9 +12,42 @@
       <h1>Exhibitor Scan</h1>
 
       <div id="scanner">
-        <video id="preview" playsinline muted></video>
-
+        <div id="qr-reader"></div>
         <button id="start">Start scanning</button>
+        <p id="status">Camera inactive</p>
+      </div>
+
+      <div id="consent" hidden>
+        <p>
+          Do you consent to share your details with this exhibitor after the
+          event?
+        </p>
+        <button id="yes">Yes, I consent</button>
+        <button id="no">No</button>
+      </div>
+
+      <div id="result" hidden></div>
+    </main>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Exhibitor QR Scan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Exhibitor Scan</h1>
+
+      <div id="scanner">
+        <video id="preview"></video>
         <p id="status">Scan attendee QR code</p>
       </div>
 
