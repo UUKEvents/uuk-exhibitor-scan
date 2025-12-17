@@ -3,7 +3,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const params = new URLSearchParams(window.location.search);
   const exhibitorId = params.get("exhibitor_id");
-  const exhibitorName = exhibitorId || "Exhibitor Scan";
+  const exhibitorName = exhibitorId
+    ? exhibitorId + "\n" + "Exhibitor Scan"
+    : exhibitorId;
 
   if (!exhibitorId) {
     alert("Missing exhibitor_id");

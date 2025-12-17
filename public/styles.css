@@ -109,7 +109,6 @@ button:disabled {
 #qr-reader {
   width: 100%;
   max-width: 360px;
-  max-height: 360px;
   margin: 0 auto;
 }
 
