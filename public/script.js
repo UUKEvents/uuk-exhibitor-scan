@@ -7,18 +7,30 @@ if (!exhibitorId) {
 }
 
 let ticketId = null;
+let codeReader;
 
-const codeReader = new ZXing.BrowserQRCodeReader();
 const video = document.getElementById("preview");
+const startButton = document.getElementById("start");
 
-codeReader.decodeFromVideoDevice(null, video, (result) => {
-  if (result) {
-    ticketId = extractTicketId(result.getText());
-    if (ticketId) {
-      codeReader.reset();
-      document.getElementById("scanner").hidden = true;
-      document.getElementById("consent").hidden = false;
-    }
+startButton.addEventListener("click", async () => {
+  startButton.disabled = true;
+
+  codeReader = new ZXing.BrowserQRCodeReader();
+
+  try {
+    await codeReader.decodeFromVideoDevice(null, video, (result) => {
+      if (result) {
+        ticketId = extractTicketId(result.getText());
+        if (ticketId) {
+          codeReader.reset();
+          document.getElementById("scanner").hidden = true;
+          document.getElementById("consent").hidden = false;
+        }
+      }
+    });
+  } catch (err) {
+    alert("Camera access failed. Please allow camera permissions.");
+    startButton.disabled = false;
   }
 });
 
@@ -30,28 +42,3 @@ function extractTicketId(text) {
     return null;
   }
 }
-
-async function sendScan(consent) {
-  await fetch("/api/scan", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      ticket_id: ticketId,
-      exhibitor_id: exhibitorId,
-      consent,
-    }),
-  });
-
-  document.getElementById("consent").hidden = true;
-  const result = document.getElementById("result");
-  result.hidden = false;
-  result.textContent = consent
-    ? "Consent recorded. Thank you."
-    : "Consent declined.";
-
-  setTimeout(() => location.reload(), 2000);
-}
-
-// Buttons
-document.getElementById("yes").onclick = () => sendScan(true);
-document.getElementById("no").onclick = () => sendScan(false);
