@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const params = new URLSearchParams(window.location.search);
   const exhibitorId = params.get("exhibitor_id");
-  const exhibitorName = params.get("exhibitor_name") || "this exhibitor";
+  const exhibitorName = params.get("exhibitor_name") || "Exhibitor Scan";
 
   if (!exhibitorId) {
     alert("Missing exhibitor_id");
@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
           }
 
-          const extracted = extractTicketId(decodedText);
+          const extracted = decodedText;
           if (!extracted) {
             console.warn("Failed to extract ticket_id from QR");
             return;
@@ -83,16 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("Camera failed to start: " + err.message);
     }
   });
-
-  function extractTicketId(text) {
-    try {
-      const url = new URL(text);
-      return url.searchParams.get("ticket_id");
-    } catch (err) {
-      console.error("Invalid QR code URL", err);
-      return null;
-    }
-  }
 
   async function sendScan(consent) {
     console.log("Sending scan, consent:", consent);
