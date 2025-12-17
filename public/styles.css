@@ -1,19 +1,88 @@
+body,
+button {
+  font-family: "Arial", sans-serif;
+}
+h1 {
+  font-family: "Georgia", serif;
+}
+
 body {
-    font-family: system-ui, Arial, sans-serif;
-    text-align: center;
-    padding: 1rem;
+  margin: 0;
+  padding: 0;
+  background-color: #f2f2f2; /* UUK grey background */
+  color: #000;
 }
 
-
-video {
-    width: 100%;
-    max-width: 360px;
-    border: 1px solid #ccc;
+header {
+  background-color: #1d70eb; /* UUK brand blue */
+  padding: 1rem;
+  text-align: center;
+  color: #ffffff; /* white text */
 }
 
+header img {
+  max-height: 2.5rem;
+}
+
+/* Main layout */
+main {
+  padding: 1.5rem;
+}
+
+h1 {
+  font-size: 1.6rem;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #1d70eb;
+}
 
 button {
-    padding: 0.75rem 1.25rem;
-    margin: 0.5rem;
-    font-size: 1rem;
+  font-weight: bold;
+  background-color: #1d70eb;
+  color: #ffffff;
+  border: none;
+  padding: 0.8rem 1.2rem;
+  margin: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #cce1ff;
+  cursor: not-allowed;
+}
+
+#scanner,
+#consent,
+#result {
+  margin-top: 1rem;
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+#status {
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
+/* QR reader container */
+#qr-reader {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+/* Consent styling */
+#consent p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+#result {
+  font-size: 1.1rem;
+  text-align: center;
+  font-weight: bold;
+  color: #02866d; /* UUK green accent for confirmation */
 }
