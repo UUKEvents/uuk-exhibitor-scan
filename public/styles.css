@@ -30,7 +30,6 @@ main {
   flex: 1; /* take remaining space */
   display: flex;
   flex-direction: column;
-  justify-content: center; /* vertical centering */
   align-items: center; /* horizontal centering */
   width: 100%;
   max-width: 420px;
