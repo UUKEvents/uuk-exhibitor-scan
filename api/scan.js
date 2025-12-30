@@ -12,7 +12,9 @@ export default async function handler(req, res) {
   const webhookUrl = process.env.N8N_WEBHOOK_URL;
 
   if (!webhookUrl) {
-    return res.status(500).json({ error: "Webhook not configured" });
+    return res
+      .status(500)
+      .json({ error: "Webhook not configured, check .env" });
   }
 
   const payload = {
