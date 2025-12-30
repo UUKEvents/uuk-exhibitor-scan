@@ -1,55 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Exhibitor QR Scan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Permissions-Policy" content="camera=(self)" />
 
-<head>
-  <meta charset="UTF-8" />
-  <title>Exhibitor QR Scan</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta http-equiv="Permissions-Policy" content="camera=(self)">
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" />
 
-  <!-- Favicon -->
-  <link rel="icon" href="/favicon.ico" />
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css" />
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="styles.css" />
+    <!-- html5-qrcode library -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+  </head>
 
-  <!-- html5-qrcode library -->
-  <script src="https://unpkg.com/html5-qrcode"></script>
-</head>
+  <body>
+    <!-- Header with logo -->
+    <header>
+      <img src="/UUK_White_RGB.svg" alt="Universities UK logo" />
+    </header>
 
-<body>
+    <!-- Main content wrapper -->
+    <main>
+      <div id="dashboard">
+        <div class="stat-card">
+          <span class="stat-label">Total Scans</span>
+          <span id="total-scans" class="stat-value">0</span>
+        </div>
+        <div id="connectivity-status" class="status-indicator online">
+          Online
+        </div>
+      </div>
 
-  <!-- Header with logo -->
-  <header>
-    <img src="/UUK_White_RGB.svg" alt="Universities UK logo" />
-  </header>
+      <h1 id="exhibitor-name">Exhibitor Scan</h1>
 
-  <!-- Main content wrapper -->
-  <main>
-    <h1 id="exhibitor-name">Exhibitor Scan</h1>
+      <!-- Scanner section -->
+      <div id="scanner">
+        <div id="qr-reader"></div>
+        <div class="scanner-controls">
+          <button id="start">Start scanning</button>
+          <button id="torch-toggle" hidden>🔦</button>
+        </div>
+        <p id="status">Camera inactive</p>
+      </div>
 
-    <!-- Scanner section -->
-    <div id="scanner">
-      <div id="qr-reader"></div>
-      <button id="start">Start scanning</button>
-      <p id="status">Camera inactive</p>
-    </div>
+      <!-- Consent section (hidden until QR scan) -->
+      <div id="consent" hidden>
+        <div class="consent-card">
+          <p><strong>Consent</strong></p>
+          <p id="consent-text">
+            Do you consent to share your details with this exhibitor after the
+            event?
+          </p>
+          <div class="consent-buttons">
+            <button id="yes" class="btn-primary">Yes, I consent</button>
+            <button id="no" class="btn-secondary">No</button>
+          </div>
+        </div>
+      </div>
 
-    <!-- Consent section (hidden until QR scan) -->
-    <div id="consent" hidden>
-      <p><strong>Consent</strong></p>
-      <p id="consent-text">Do you consent to share your details with this exhibitor after the event?</p>
-      <button id="yes">Yes, I consent</button>
-      <button id="no">No</button>
-    </div>
+      <!-- Scan result section (hidden until confirmation) -->
+      <div id="result" hidden class="fade-in"></div>
+    </main>
 
-    <!-- Scan result section (hidden until confirmation) -->
-    <div id="result" hidden></div>
-  </main>
-
-  <!-- Custom JS -->
-  <script src="script.js"></script>
-
-</body>
-
+    <!-- Custom JS -->
+    <script src="script.js"></script>
+  </body>
 </html>

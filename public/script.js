@@ -11,27 +11,107 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // UI elements
   const startButton = document.getElementById("start");
+  const torchToggle = document.getElementById("torch-toggle");
   const status = document.getElementById("status");
   const scannerDiv = document.getElementById("scanner");
   const consentDiv = document.getElementById("consent");
   const consentText = document.getElementById("consent-text");
   const resultDiv = document.getElementById("result");
+  const totalScansEl = document.getElementById("total-scans");
+  const connectivityStatus = document.getElementById("connectivity-status");
 
   document.getElementById("exhibitor-name").textContent =
     exhibitorId || "Exhibitor Scan";
   consentText.textContent = `Do you consent to share your details with this exhibitor (ID: ${exhibitorId}) after the event?`;
 
+  // State
   let ticketId = null;
   let html5QrCode = null;
   let scanLocked = false;
+  let isTorchOn = false;
 
+  // GDPR-compliant Stats Tracking
+  function updateTotalScans() {
+    const totals = parseInt(localStorage.getItem("uuk_scan_total") || "0");
+    totalScansEl.textContent = totals;
+  }
+  updateTotalScans();
+
+  function incrementTotalScans() {
+    const totals = parseInt(localStorage.getItem("uuk_scan_total") || "0") + 1;
+    localStorage.setItem("uuk_scan_total", totals);
+    updateTotalScans();
+  }
+
+  // Offline Management
+  const OFFLINE_QUEUE_KEY = "uuk_scan_queue";
+
+  function getQueue() {
+    try {
+      return JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || "[]");
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function addToQueue(payload) {
+    const queue = getQueue();
+    queue.push(payload);
+    localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+    updateConnectivityUI();
+  }
+
+  function updateConnectivityUI() {
+    const queue = getQueue();
+    if (navigator.onLine) {
+      connectivityStatus.textContent = "Online";
+      connectivityStatus.className = "status-indicator online";
+      if (queue.length > 0) {
+        connectivityStatus.textContent = `Syncing (${queue.length})...`;
+        processQueue();
+      }
+    } else {
+      connectivityStatus.textContent = `Offline (${queue.length} pending)`;
+      connectivityStatus.className = "status-indicator offline";
+    }
+  }
+
+  async function processQueue() {
+    if (!navigator.onLine) return;
+    const queue = getQueue();
+    if (queue.length === 0) return;
+
+    const payload = queue[0];
+    try {
+      const response = await fetch("/api/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        const remaining = getQueue().filter(
+          (p) => JSON.stringify(p) !== JSON.stringify(payload)
+        );
+        localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(remaining));
+        updateConnectivityUI();
+        processQueue(); // Process next in line
+      }
+    } catch (e) {
+      console.error("Queue sync failed", e);
+    }
+  }
+
+  window.addEventListener("online", updateConnectivityUI);
+  window.addEventListener("offline", updateConnectivityUI);
+  updateConnectivityUI();
+
+  // Scanner Logic
   startButton.addEventListener("click", async () => {
-    console.log("Start button clicked");
     startButton.disabled = true;
     status.textContent = "Starting camera…";
 
     if (typeof Html5Qrcode === "undefined") {
-      console.error("Html5Qrcode library not loaded");
       alert("QR library failed to load");
       startButton.disabled = false;
       return;
@@ -40,85 +120,103 @@ document.addEventListener("DOMContentLoaded", () => {
     html5QrCode = new Html5Qrcode("qr-reader");
 
     try {
-      console.log("Requesting camera access");
       await html5QrCode.start(
         { facingMode: "environment" },
         { fps: 10, qrbox: 250 },
-        (decodedText) => {
-          console.log("QR code detected:", decodedText);
-          if (scanLocked) {
-            console.log("Scan locked, ignoring");
-            return;
-          }
-
-          const extracted = decodedText;
-          if (!extracted) {
-            console.warn("Failed to extract ticket_id from QR");
-            return;
-          }
-
-          ticketId = extracted;
-          scanLocked = true;
-          console.log("Ticket ID extracted:", ticketId);
-
-          html5QrCode
-            .stop()
-            .then(() => {
-              console.log("Camera stopped");
-              scannerDiv.hidden = true;
-              consentDiv.hidden = false;
-              status.textContent = "";
-            })
-            .catch((err) => {
-              console.error("Failed to stop camera", err);
-            });
-        }
+        onScanSuccess
       );
       status.textContent = "Scanning…";
-      console.log("Camera started successfully");
+      // Flashlight support check
+      const capabilities = html5QrCode.getRunningTrackCapabilities();
+      if (capabilities.torch) {
+        torchToggle.hidden = false;
+      }
     } catch (err) {
-      console.error("Camera failed to start:", err);
-      status.textContent = "Camera failed to start";
+      status.textContent = "Camera failed";
       startButton.disabled = false;
-      alert("Camera failed to start: " + err.message);
+      alert("Camera failed: " + err.message);
     }
   });
 
-  async function sendScan(consent) {
-    console.log("Sending scan, consent:", consent);
+  async function onScanSuccess(decodedText) {
+    if (scanLocked) return;
+    ticketId = decodedText;
+    scanLocked = true;
+
+    // Haptic feedback
+    if ("vibrate" in navigator) {
+      navigator.vibrate(100);
+    }
+
+    try {
+      await html5QrCode.stop();
+      scannerDiv.hidden = true;
+      consentDiv.hidden = false;
+      status.textContent = "";
+      isTorchOn = false;
+      torchToggle.textContent = "🔦";
+    } catch (err) {
+      console.error("Stop failed", err);
+    }
+  }
+
+  torchToggle.addEventListener("click", async () => {
+    if (!html5QrCode) return;
+    isTorchOn = !isTorchOn;
+    try {
+      await html5QrCode.applyVideoConstraints({
+        advanced: [{ torch: isTorchOn }],
+      });
+      torchToggle.textContent = isTorchOn ? "💡" : "🔦";
+    } catch (e) {
+      console.error("Flashlight toggle failed", e);
+    }
+  });
+
+  async function handleScanSubmission(consent) {
+    const payload = {
+      ticket_id: ticketId,
+      exhibitor_id: exhibitorId,
+      consent,
+    };
+
+    // UI feedback for processing
+    consentDiv.hidden = true;
+    resultDiv.hidden = false;
+    resultDiv.textContent = "Processing...";
+
+    incrementTotalScans();
+
+    if (!navigator.onLine) {
+      addToQueue(payload);
+      resultDiv.textContent = consent
+        ? "Saved offline. Thank you."
+        : "Declined (saved offline).";
+      setTimeout(() => location.reload(), 2000);
+      return;
+    }
 
     try {
       const response = await fetch("/api/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ticket_id: ticketId,
-          exhibitor_id: exhibitorId,
-          consent,
-        }),
+        body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error("Failed to POST to n8n");
+      if (!response.ok) throw new Error("Server error");
 
-      console.log("Scan sent successfully");
-      consentDiv.hidden = true;
-      resultDiv.hidden = false;
       resultDiv.textContent = consent
         ? "Consent recorded. Thank you."
         : "Consent declined.";
-
-      setTimeout(() => location.reload(), 2500);
+      setTimeout(() => location.reload(), 2000);
     } catch (err) {
-      console.error("Error sending scan:", err);
-      alert("Failed to record scan: " + err.message);
-      scanLocked = false;
-      consentDiv.hidden = true;
-      scannerDiv.hidden = false;
-      startButton.disabled = false;
-      status.textContent = "Camera inactive";
+      console.warn("Failed to send, queueing offline", err);
+      addToQueue(payload);
+      resultDiv.textContent = "Saved offline.";
+      setTimeout(() => location.reload(), 2000);
     }
   }
 
-  document.getElementById("yes").onclick = () => sendScan(true);
-  document.getElementById("no").onclick = () => sendScan(false);
+  document.getElementById("yes").onclick = () => handleScanSubmission(true);
+  document.getElementById("no").onclick = () => handleScanSubmission(false);
 });
