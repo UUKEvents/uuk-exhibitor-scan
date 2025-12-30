@@ -17,12 +17,13 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing session_name" });
   }
 
-  // Use a dedicated session webhook if provided, otherwise fallback to the main one
-  const webhookUrl =
-    process.env.SESSION_WEBHOOK_URL || process.env.N8N_WEBHOOK_URL;
+  // Dedicated session scanning webhook
+  const webhookUrl = process.env.N8N_SESSION_WEBHOOK_URL;
 
   if (!webhookUrl) {
-    return res.status(500).json({ error: "Webhook not configured" });
+    return res
+      .status(500)
+      .json({ error: "N8N_SESSION_WEBHOOK_URL not configured" });
   }
 
   const payload = {
