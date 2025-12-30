@@ -1,4 +1,4 @@
-const CACHE_NAME = "uuk-scan-v1";
+const CACHE_NAME = "uuk-scan-v2";
 const ASSETS = [
   "/",
   "/index.html",
