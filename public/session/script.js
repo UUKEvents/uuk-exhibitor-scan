@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let isTorchOn = false;
   let sessionActive = false;
   let sessionStartTime = null;
+  const uniqueTicketIds = new Set();
 
   function updateTotal() {
     const total = qrCount + manualCount;
@@ -79,8 +80,19 @@ document.addEventListener("DOMContentLoaded", () => {
   let lastScanTime = 0;
   function onScanSuccess(decodedText) {
     const now = Date.now();
-    if (now - lastScanTime < 2000) return; // Debounce scans
+    if (now - lastScanTime < 1000) return; // Debounce scans
 
+    if (uniqueTicketIds.has(decodedText)) {
+      status.textContent = "Duplicate scan ignored";
+      status.style.color = "var(--uuk-red)";
+      setTimeout(() => {
+        status.textContent = "Scanner active";
+        status.style.color = "var(--text-white)";
+      }, 1500);
+      return;
+    }
+
+    uniqueTicketIds.add(decodedText);
     qrCount++;
     updateTotal();
     lastScanTime = now;
@@ -93,10 +105,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Flash visual feedback
     const scannerEl = document.getElementById("qr-reader");
     scannerEl.style.borderColor = "var(--success-green)";
-    setTimeout(
-      () => (scannerEl.style.borderColor = "var(--glass-border)"),
-      300
-    );
+    status.textContent = "Scan confirmed";
+    setTimeout(() => {
+      scannerEl.style.borderColor = "var(--surface-border)";
+      status.textContent = "Scanner active";
+    }, 500);
   }
 
   torchToggle.addEventListener("click", async () => {
