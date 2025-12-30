@@ -1,4 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  const urlExhibitorId = params.get("exhibitor_id");
+
   // UI elements
   const sessionSetup = document.getElementById("session-setup");
   const scannerSection = document.getElementById("scanner-section");
@@ -18,6 +21,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const connectivityStatus = document.getElementById("connectivity-status");
   const offlineTools = document.getElementById("offline-tools");
   const syncNowBtn = document.getElementById("sync-now");
+
+  if (urlExhibitorId) {
+    exhibitorIdInput.value = urlExhibitorId;
+  }
 
   // State
   let qrCount = 0;

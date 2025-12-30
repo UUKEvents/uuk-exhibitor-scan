@@ -4,9 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   const exhibitorId = params.get("exhibitor_id");
 
-  if (!exhibitorId) {
-    alert("Missing exhibitor_id");
-    console.error("Missing Exhibitor ID. Please use provided link.");
+  if (exhibitorId) {
+    console.log(`Exhibitor ID loaded: ${exhibitorId}`);
   }
 
   // UI elements
