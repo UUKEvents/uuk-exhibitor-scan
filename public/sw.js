@@ -6,6 +6,8 @@ const ASSETS = [
   "/script.js",
   "/favicon.ico",
   "/UUK_White_RGB.svg",
+  "/session/index.html",
+  "/session/script.js",
   "https://unpkg.com/html5-qrcode",
 ];
 

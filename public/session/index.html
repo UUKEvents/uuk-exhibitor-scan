@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Session Attendance - UUK Events</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Permissions-Policy" content="camera=(self)" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="../styles.css" />
+    <script src="https://unpkg.com/html5-qrcode"></script>
+  </head>
+  <body>
+    <header>
+      <img src="/UUK_White_RGB.svg" alt="Universities UK logo" />
+    </header>
+
+    <main>
+      <div id="dashboard">
+        <div class="stat-card">
+          <span class="stat-label">QR Scans</span>
+          <span id="qr-scans" class="stat-value">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Manual</span>
+          <span id="manual-scans" class="stat-value">0</span>
+        </div>
+        <div id="connectivity-status" class="status-indicator online">
+          Online
+        </div>
+      </div>
+
+      <div class="stat-card" style="margin-top: -1rem">
+        <span class="stat-label">Total Attendance</span>
+        <span id="total-count" class="stat-value">0</span>
+      </div>
+
+      <div id="session-setup">
+        <div class="session-form">
+          <div class="input-group">
+            <label for="session-name">Session Name (Required)</label>
+            <input
+              type="text"
+              id="session-name"
+              placeholder="e.g. Higher Education Keynote"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <label for="exhibitor-id">Exhibitor ID (Optional)</label>
+            <input
+              type="text"
+              id="exhibitor-id"
+              placeholder="e.g. EXHIBITOR_123"
+            />
+          </div>
+          <button id="start-session" class="btn-primary">
+            Start Attendance Tracking
+          </button>
+        </div>
+      </div>
+
+      <div id="scanner-section" hidden>
+        <div id="scanner">
+          <div id="qr-reader"></div>
+          <div class="scanner-controls">
+            <button id="torch-toggle" hidden>🔦</button>
+          </div>
+          <p id="status" style="text-align: center; margin-top: 1rem">
+            Scanner active
+          </p>
+        </div>
+
+        <div class="secondary-header">Manual Count</div>
+        <div class="manual-counter">
+          <button id="manual-minus" class="btn-counter btn-secondary">−</button>
+          <span id="manual-count-display">0</span>
+          <button id="manual-plus" class="btn-counter btn-primary">+</button>
+        </div>
+
+        <div class="complete-section">
+          <button
+            id="complete-session"
+            class="btn-primary"
+            style="background-color: var(--success-green)"
+          >
+            Complete Session & Submit
+          </button>
+        </div>
+      </div>
+
+      <div id="result" hidden class="fade-in"></div>
+
+      <!-- Offline Tools Section -->
+      <div id="offline-tools" class="offline-tools" hidden>
+        <button id="sync-now" class="btn-tool">Sync Pending Sessions</button>
+      </div>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
