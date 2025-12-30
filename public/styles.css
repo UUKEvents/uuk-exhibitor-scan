@@ -245,25 +245,20 @@ button:disabled {
   transition: all 0.2s ease;
 }
 
-.star-rating span.active,
-.star-rating span:hover,
-.star-rating span:hover ~ span {
+/* Natural L-to-R hover logic */
+.star-rating:hover span {
   color: #ffca28;
   text-shadow: 0 0 10px rgba(255, 202, 40, 0.5);
 }
 
-/* Star rating hover effect fix (L-to-R) */
-.star-rating {
-  flex-direction: row-reverse;
-}
-
-.star-rating span:hover,
 .star-rating span:hover ~ span {
-  color: #ffca28;
+  color: var(--text-muted);
+  text-shadow: none;
 }
 
 .star-rating span.active {
   color: #ffca28;
+  text-shadow: 0 0 10px rgba(255, 202, 40, 0.5);
 }
 
 /* Tool Buttons */
