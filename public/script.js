@@ -35,6 +35,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const totals = parseInt(localStorage.getItem("uuk_scan_total") || "0");
     totalScansEl.textContent = totals;
   }
+
+  function checkAndResetStats() {
+    const today = new Date().toISOString().split("T")[0];
+    const lastResetDate = localStorage.getItem("uuk_last_reset_date");
+    const lastExhibitorId = localStorage.getItem("uuk_last_exhibitor_id");
+
+    if (lastResetDate !== today || lastExhibitorId !== exhibitorId) {
+      localStorage.setItem("uuk_scan_total", "0");
+      localStorage.setItem("uuk_last_reset_date", today);
+      localStorage.setItem("uuk_last_exhibitor_id", exhibitorId || "");
+    }
+  }
+
+  checkAndResetStats();
   updateTotalScans();
 
   function incrementTotalScans() {
