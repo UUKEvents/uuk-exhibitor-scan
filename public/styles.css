@@ -224,3 +224,66 @@ button:disabled {
     gap: 1.5rem;
   }
 }
+
+/* Star Rating */
+.rating-container {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.star-rating {
+  font-size: 2.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.star-rating span {
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.star-rating span.active,
+.star-rating span:hover,
+.star-rating span:hover ~ span {
+  color: #ffca28;
+  text-shadow: 0 0 10px rgba(255, 202, 40, 0.5);
+}
+
+/* Star rating hover effect fix (L-to-R) */
+.star-rating {
+  flex-direction: row-reverse;
+}
+
+.star-rating span:hover,
+.star-rating span:hover ~ span {
+  color: #ffca28;
+}
+
+.star-rating span.active {
+  color: #ffca28;
+}
+
+/* Tool Buttons */
+.offline-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.btn-tool {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  padding: 0.75rem;
+}
+
+.btn-tool:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-white);
+  border-color: var(--text-muted);
+}

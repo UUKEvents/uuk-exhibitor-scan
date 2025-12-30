@@ -54,6 +54,16 @@
             Do you consent to share your details with this exhibitor after the
             event?
           </p>
+          <div class="rating-container">
+            <p><strong>Rating (Lead Interest):</strong></p>
+            <div id="star-rating" class="star-rating">
+              <span data-value="1">★</span>
+              <span data-value="2">★</span>
+              <span data-value="3">★</span>
+              <span data-value="4">★</span>
+              <span data-value="5">★</span>
+            </div>
+          </div>
           <div class="consent-buttons">
             <button id="yes" class="btn-primary">Yes, I consent</button>
             <button id="no" class="btn-secondary">No</button>
@@ -63,6 +73,14 @@
 
       <!-- Scan result section (hidden until confirmation) -->
       <div id="result" hidden class="fade-in"></div>
+
+      <!-- Offline Tools Section -->
+      <div id="offline-tools" class="offline-tools" hidden>
+        <button id="sync-now" class="btn-tool">Sync Now</button>
+        <button id="export-csv" class="btn-tool">
+          Export Offline Queue (CSV)
+        </button>
+      </div>
     </main>
 
     <!-- Custom JS -->

@@ -19,6 +19,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultDiv = document.getElementById("result");
   const totalScansEl = document.getElementById("total-scans");
   const connectivityStatus = document.getElementById("connectivity-status");
+  const offlineTools = document.getElementById("offline-tools");
+  const syncNowBtn = document.getElementById("sync-now");
+  const exportCsvBtn = document.getElementById("export-csv");
+  const starRating = document.getElementById("star-rating");
 
   document.getElementById("exhibitor-name").textContent =
     exhibitorId || "Exhibitor Scan";
@@ -29,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let html5QrCode = null;
   let scanLocked = false;
   let isTorchOn = false;
+  let currentRating = 0;
 
   // GDPR-compliant Stats Tracking
   function updateTotalScans() {
@@ -46,6 +51,21 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("uuk_last_reset_date", today);
       localStorage.setItem("uuk_last_exhibitor_id", exhibitorId || "");
     }
+  }
+
+  // Star Rating Logic
+  starRating.querySelectorAll("span").forEach((star) => {
+    star.addEventListener("click", () => {
+      currentRating = parseInt(star.getAttribute("data-value"));
+      updateStarUI();
+    });
+  });
+
+  function updateStarUI() {
+    starRating.querySelectorAll("span").forEach((star) => {
+      const val = parseInt(star.getAttribute("data-value"));
+      star.classList.toggle("active", val <= currentRating);
+    });
   }
 
   checkAndResetStats();
@@ -88,8 +108,14 @@ document.addEventListener("DOMContentLoaded", () => {
       connectivityStatus.textContent = `Offline (${queue.length} pending)`;
       connectivityStatus.className = "status-indicator offline";
     }
-  }
 
+    // Show/hide offline tools based on queue
+    if (queue.length > 0) {
+      offlineTools.hidden = false;
+    } else {
+      offlineTools.hidden = true;
+    }
+  }
   async function processQueue() {
     if (!navigator.onLine) return;
     const queue = getQueue();
@@ -115,6 +141,49 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Queue sync failed", e);
     }
   }
+
+  syncNowBtn.addEventListener("click", () => {
+    if (!navigator.onLine) {
+      alert("Still offline. Please check your connection.");
+      return;
+    }
+    processQueue();
+  });
+
+  exportCsvBtn.addEventListener("click", () => {
+    const queue = getQueue();
+    if (queue.length === 0) return;
+
+    const headers = [
+      "Ticket ID",
+      "Exhibitor ID",
+      "Consent",
+      "Rating",
+      "Scanned At",
+    ];
+    const rows = queue.map((p) => [
+      p.ticket_id,
+      p.exhibitor_id,
+      p.consent,
+      p.rating || "0",
+      p.scanned_at || new Date().toISOString(),
+    ]);
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers, ...rows].map((e) => e.join(",")).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `uuk_scans_backup_${new Date().getTime()}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
 
   window.addEventListener("online", updateConnectivityUI);
   window.addEventListener("offline", updateConnectivityUI);
@@ -199,6 +268,8 @@ document.addEventListener("DOMContentLoaded", () => {
       html5QrCode.clear();
       html5QrCode = null;
     }
+    currentRating = 0;
+    updateStarUI();
   }
 
   async function handleScanSubmission(consent) {
@@ -206,6 +277,8 @@ document.addEventListener("DOMContentLoaded", () => {
       ticket_id: ticketId,
       exhibitor_id: exhibitorId,
       consent,
+      rating: currentRating,
+      scanned_at: new Date().toISOString(),
     };
 
     // UI feedback for processing
