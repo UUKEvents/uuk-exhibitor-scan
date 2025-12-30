@@ -1,4 +1,16 @@
 {
   "name": "uuk-exhibitor-scan",
-  "private": true
+  "version": "1.0.0",
+  "description": "QR scan application for UUK exhibitors",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "serve public"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "serve": "^14.2.0"
+  }
 }

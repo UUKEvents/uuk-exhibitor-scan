@@ -3,9 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const params = new URLSearchParams(window.location.search);
   const exhibitorId = params.get("exhibitor_id");
-  const exhibitorName = exhibitorId
-    ? exhibitorId + "\n" + "Exhibitor Scan"
-    : exhibitorId;
 
   if (!exhibitorId) {
     alert("Missing exhibitor_id");
@@ -20,8 +17,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const consentText = document.getElementById("consent-text");
   const resultDiv = document.getElementById("result");
 
-  document.getElementById("exhibitor-name").textContent = exhibitorName;
-  consentText.textContent = `Do you consent to share your details with ${exhibitorName} after the event?`;
+  document.getElementById("exhibitor-name").textContent =
+    exhibitorId || "Exhibitor Scan";
+  consentText.textContent = `Do you consent to share your details with this exhibitor (ID: ${exhibitorId}) after the event?`;
 
   let ticketId = null;
   let html5QrCode = null;
@@ -96,7 +94,6 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({
           ticket_id: ticketId,
           exhibitor_id: exhibitorId,
-          exhibitor_name: exhibitorName,
           consent,
         }),
       });

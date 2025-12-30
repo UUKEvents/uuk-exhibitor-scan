@@ -16,8 +16,6 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   /* prevent horizontal scroll */
-  overflow-y: hidden;
-  /* prevent unwanted vertical scroll */
 }
 
 /* Header */
@@ -54,7 +52,7 @@ main {
 
 /* Headings */
 h1 {
-  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-family: Georgia, "Times New Roman", Times, serif;
   font-size: 1.8rem;
   margin: 1rem 0;
   font-weight: bold;
