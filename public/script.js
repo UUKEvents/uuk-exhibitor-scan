@@ -173,6 +173,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  function resetUI() {
+    scanLocked = false;
+    ticketId = null;
+    resultDiv.hidden = true;
+    consentDiv.hidden = true;
+    scannerDiv.hidden = false;
+    startButton.disabled = false;
+    status.textContent = "Camera inactive";
+    if (html5QrCode) {
+      html5QrCode.clear();
+      html5QrCode = null;
+    }
+  }
+
   async function handleScanSubmission(consent) {
     const payload = {
       ticket_id: ticketId,
@@ -192,7 +206,7 @@ document.addEventListener("DOMContentLoaded", () => {
       resultDiv.textContent = consent
         ? "Saved offline. Thank you."
         : "Declined (saved offline).";
-      setTimeout(() => location.reload(), 2000);
+      setTimeout(resetUI, 2000);
       return;
     }
 
@@ -208,12 +222,12 @@ document.addEventListener("DOMContentLoaded", () => {
       resultDiv.textContent = consent
         ? "Consent recorded. Thank you."
         : "Consent declined.";
-      setTimeout(() => location.reload(), 2000);
+      setTimeout(resetUI, 2000);
     } catch (err) {
       console.warn("Failed to send, queueing offline", err);
       addToQueue(payload);
       resultDiv.textContent = "Saved offline.";
-      setTimeout(() => location.reload(), 2000);
+      setTimeout(resetUI, 2000);
     }
   }
 
