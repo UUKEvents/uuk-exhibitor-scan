@@ -51,17 +51,23 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    startSessionBtn.disabled = true;
+    startSessionBtn.textContent = "Initializing Camera...";
+
     sessionActive = true;
     sessionStartTime = new Date().toISOString();
     sessionSetup.hidden = true;
     scannerSection.hidden = false;
+    status.textContent = "Starting camera...";
     startScanner();
   });
 
   // Scanner Logic
   async function startScanner() {
     if (typeof Html5Qrcode === "undefined") {
-      alert("QR library failed to load");
+      alert("QR library failed to load. Please check your connection.");
+      startSessionBtn.disabled = false;
+      startSessionBtn.textContent = "Start Attendance Tracking";
       return;
     }
 
@@ -70,17 +76,30 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       await html5QrCode.start(
         { facingMode: "environment" },
-        { fps: 15, qrbox: 250 },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
         onScanSuccess
       );
+      status.textContent = "Scanner active";
+
       // Flashlight support
-      const capabilities = html5QrCode.getRunningTrackCapabilities();
-      if (capabilities.torch) {
-        torchToggle.hidden = false;
+      try {
+        const capabilities = html5QrCode.getRunningTrackCapabilities();
+        if (capabilities && capabilities.torch) {
+          torchToggle.hidden = false;
+        }
+      } catch (capErr) {
+        console.warn("Could not get camera capabilities", capErr);
       }
     } catch (err) {
       status.textContent = "Camera failed";
+      alert("Camera error: " + (err.message || err));
       console.error(err);
+
+      // Fallback
+      sessionSetup.hidden = false;
+      scannerSection.hidden = true;
+      startSessionBtn.disabled = false;
+      startSessionBtn.textContent = "Start Attendance Tracking";
     }
   }
 
