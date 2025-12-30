@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateStarUI() {
     starRating.querySelectorAll("span").forEach((star) => {
       const val = parseInt(star.getAttribute("data-value"));
-      star.classList.toggle("active", val <= currentRating);
+      star.classList.toggle("active", val === currentRating);
     });
   }
 

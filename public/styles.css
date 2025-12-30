@@ -237,6 +237,7 @@ button:disabled {
   justify-content: center;
   gap: 0.5rem;
   margin-top: 0.5rem;
+  flex-direction: row-reverse; /* Secret sauce for star ratings */
 }
 
 .star-rating span {
@@ -245,18 +246,16 @@ button:disabled {
   transition: all 0.2s ease;
 }
 
-/* Natural L-to-R hover logic */
-.star-rating:hover span {
+/* Highlight hovered star and all stars to its left (after it in DOM) */
+.star-rating span:hover,
+.star-rating span:hover ~ span {
   color: #ffca28;
   text-shadow: 0 0 10px rgba(255, 202, 40, 0.5);
 }
 
-.star-rating span:hover ~ span {
-  color: var(--text-muted);
-  text-shadow: none;
-}
-
-.star-rating span.active {
+/* Highlight active star and all stars to its left */
+.star-rating span.active,
+.star-rating span.active ~ span {
   color: #ffca28;
   text-shadow: 0 0 10px rgba(255, 202, 40, 0.5);
 }
