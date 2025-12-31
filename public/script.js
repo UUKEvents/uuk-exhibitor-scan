@@ -10,6 +10,11 @@ if ("serviceWorker" in navigator) {
 document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   let exhibitorId = params.get("exhibitor_id");
+  let queryPasscode = params.get("passcode");
+
+  // Authentication State
+  let isAuthenticated = false;
+  const AUTH_KEY = "uuk_auth_verified_id";
 
   // UI elements
   const startButton = document.getElementById("start");
@@ -17,14 +22,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const status = document.getElementById("status");
   const changeExhibitorBtn = document.getElementById("change-exhibitor");
 
+  // Auth UI
+  const authModal = document.getElementById("auth-modal");
+  const authIdInput = document.getElementById("auth-exhibitor-id");
+  const authPassInput = document.getElementById("auth-passcode");
+  const authSubmitBtn = document.getElementById("auth-submit");
+  const authCancelBtn = document.getElementById("auth-cancel");
+
   function refreshExhibitorUI() {
-    if (!exhibitorId) {
-      status.textContent =
-        "Error: No Exhibitor ID found. Use the tool below to set one.";
+    if (!exhibitorId || !isAuthenticated) {
+      status.textContent = !exhibitorId
+        ? "Error: No Exhibitor ID found. Use the tool below to set one."
+        : "Pending Authentication...";
       status.style.color = "var(--uuk-red)";
       startButton.disabled = true;
       if (changeExhibitorBtn)
         changeExhibitorBtn.textContent = "Set Exhibitor ID";
+
+      // If we have an ID but not authenticated, show modal
+      if (exhibitorId && !isAuthenticated) {
+        showAuthModal(exhibitorId);
+      }
     } else {
       status.textContent = "Camera inactive";
       status.style.color = "";
@@ -48,7 +66,121 @@ document.addEventListener("DOMContentLoaded", () => {
   const starRating = document.getElementById("star-rating");
   const notesField = document.getElementById("notes");
 
-  refreshExhibitorUI();
+  // Hashing Helper
+  async function sha256(message) {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  async function verifyExhibitor(id, passcode) {
+    if (!navigator.onLine) {
+      // If offline, check against stored ID
+      if (localStorage.getItem(AUTH_KEY) === id) {
+        isAuthenticated = true;
+        exhibitorId = id;
+        refreshExhibitorUI();
+        return true;
+      }
+      alert(
+        "Authentication requires an internet connection for new or unverified IDs."
+      );
+      return false;
+    }
+
+    try {
+      const response = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ exhibitor_id: id }),
+      });
+
+      if (!response.ok) throw new Error("Auth service unavailable");
+
+      const { passcode_hash } = await response.json();
+      const inputHash = await sha256(passcode);
+
+      if (inputHash === passcode_hash) {
+        isAuthenticated = true;
+        exhibitorId = id;
+        localStorage.setItem(AUTH_KEY, id);
+
+        // Update URL
+        const url = new URL(window.location.href);
+        url.searchParams.set("exhibitor_id", id);
+        // We DON'T keep passcode in URL after successful verification for security,
+        // unless you want to keep it. The user said "can still be set via query param".
+        // Let's keep it if it was there, but maybe clear it for safety?
+        // User said "for easy qr code generation", so they probably want it to stay.
+        window.history.replaceState({}, "", url);
+
+        refreshExhibitorUI();
+        return true;
+      } else {
+        alert("Invalid Passcode for Exhibitor ID: " + id);
+        return false;
+      }
+    } catch (err) {
+      console.error("Auth error:", err);
+      alert("Error contacting authentication service. Please try again.");
+      return false;
+    }
+  }
+
+  function showAuthModal(presetId = "") {
+    authIdInput.value = presetId || exhibitorId || "";
+    authPassInput.value = "";
+    authModal.hidden = false;
+  }
+
+  authSubmitBtn.onclick = async () => {
+    const id = authIdInput.value.trim();
+    const pass = authPassInput.value.trim();
+    if (!id || !pass) {
+      alert("Please enter both ID and Passcode");
+      return;
+    }
+
+    authSubmitBtn.disabled = true;
+    authSubmitBtn.textContent = "Verifying...";
+
+    const success = await verifyExhibitor(id, pass);
+
+    authSubmitBtn.disabled = false;
+    authSubmitBtn.textContent = "Verify & Save";
+
+    if (success) {
+      authModal.hidden = true;
+      checkAndResetStats(); // Reset stats if ID changed
+    }
+  };
+
+  authCancelBtn.onclick = () => {
+    if (!isAuthenticated && exhibitorId) {
+      // If we have an ID but cancelled auth, we are stuck.
+    }
+    authModal.hidden = true;
+  };
+
+  // Initial Auth Check
+  async function initAuth() {
+    if (exhibitorId && queryPasscode) {
+      const success = await verifyExhibitor(exhibitorId, queryPasscode);
+      if (!success) showAuthModal(exhibitorId);
+    } else if (exhibitorId) {
+      if (localStorage.getItem(AUTH_KEY) === exhibitorId) {
+        isAuthenticated = true;
+        refreshExhibitorUI();
+      } else {
+        showAuthModal(exhibitorId);
+      }
+    } else {
+      refreshExhibitorUI();
+    }
+  }
+
+  initAuth();
 
   // State
   let ticketId = null;
@@ -221,23 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    const newId = prompt("Enter new Exhibitor ID:", exhibitorId || "");
-    if (newId !== null && newId.trim() !== "") {
-      exhibitorId = newId.trim();
-
-      // Update URL without reloading
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set("exhibitor_id", exhibitorId);
-      window.history.pushState({}, "", newUrl);
-
-      // Reset stats for new ID
-      localStorage.setItem("uuk_scan_total", "0");
-      localStorage.setItem("uuk_last_exhibitor_id", exhibitorId);
-
-      updateTotalScans();
-      refreshExhibitorUI();
-      alert(`Exhibitor ID updated to: ${exhibitorId}. Scan count reset.`);
-    }
+    showAuthModal();
   });
 
   window.addEventListener("online", updateConnectivityUI);
