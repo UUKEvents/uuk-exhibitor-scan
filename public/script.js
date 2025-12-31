@@ -9,12 +9,16 @@ if ("serviceWorker" in navigator) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
-  let exhibitorId = params.get("exhibitor_id");
+  const AUTH_KEY = "uuk_auth_verified_id";
+  const NAME_KEY = "uuk_auth_verified_name";
+
+  let exhibitorId =
+    params.get("exhibitor_id") || localStorage.getItem(AUTH_KEY);
   let queryPasscode = params.get("passcode");
 
   // Authentication State
   let isAuthenticated = false;
-  const AUTH_KEY = "uuk_auth_verified_id";
+  let exhibitorName = null;
 
   // UI elements
   const startButton = document.getElementById("start");
@@ -64,8 +68,10 @@ document.addEventListener("DOMContentLoaded", () => {
         changeExhibitorBtn.textContent = "Change Exhibitor ID";
     }
     document.getElementById("exhibitor-name").textContent =
-      exhibitorId || "Exhibitor Scan";
-    consentText.textContent = `Have you received consent to share these details with exhibitor (ID: ${exhibitorId}) after the event?`;
+      exhibitorName || exhibitorId || "Exhibitor Scan";
+    consentText.textContent = `Have you received consent to share these details with ${
+      exhibitorName || "the exhibitor"
+    } (ID: ${exhibitorId || "Unknown"}) after the event?`;
   }
 
   // Hashing Helper
@@ -100,13 +106,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!response.ok) throw new Error("Auth service unavailable");
 
-      const { passcode_hash } = await response.json();
+      const { passcode_hash, exhibitor_name } = await response.json();
       const inputHash = await sha256(passcode);
 
       if (passcode_hash && inputHash === passcode_hash.toLowerCase().trim()) {
         isAuthenticated = true;
         exhibitorId = id;
+        exhibitorName = exhibitor_name;
         localStorage.setItem(AUTH_KEY, id);
+        if (exhibitor_name) {
+          localStorage.setItem(NAME_KEY, exhibitor_name);
+        } else {
+          localStorage.removeItem(NAME_KEY);
+        }
 
         const url = new URL(window.location.href);
         url.searchParams.set("exhibitor_id", id);
@@ -166,17 +178,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initial Auth Check
   async function initAuth() {
+    const storedId = localStorage.getItem(AUTH_KEY);
+
     if (exhibitorId && queryPasscode) {
+      // Manual/Link auth with passcode
       const success = await verifyExhibitor(exhibitorId, queryPasscode);
       if (!success) showAuthModal(exhibitorId);
     } else if (exhibitorId) {
-      if (localStorage.getItem(AUTH_KEY) === exhibitorId) {
+      // If we have an ID (from URL or storage), check if it was previously verified
+      if (storedId === exhibitorId) {
         isAuthenticated = true;
+        exhibitorName = localStorage.getItem(NAME_KEY);
         refreshExhibitorUI();
       } else {
+        // ID present but not verified, show modal
         showAuthModal(exhibitorId);
       }
     } else {
+      // No ID at all
       refreshExhibitorUI();
     }
   }

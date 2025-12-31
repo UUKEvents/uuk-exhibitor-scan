@@ -46,14 +46,22 @@ export default async function handler(req, res) {
     const hash =
       typeof data === "object" && data !== null
         ? data.passcode_hash || data.hash
-        : data;
+        : null;
+
+    const name =
+      typeof data === "object" && data !== null
+        ? data.exhibitor_name || data.name
+        : null;
 
     if (!hash || (typeof hash === "string" && hash.includes("<!DOCTYPE"))) {
       console.error("No valid hash found in n8n response:", data);
       return res.status(500).json({ error: "Invalid response from n8n" });
     }
 
-    return res.status(200).json({ passcode_hash: hash.toString().trim() });
+    return res.status(200).json({
+      passcode_hash: hash.toString().trim(),
+      exhibitor_name: name ? name.toString().trim() : null,
+    });
   } catch (error) {
     clearTimeout(timeoutId);
     console.error("Auth error:", error);
