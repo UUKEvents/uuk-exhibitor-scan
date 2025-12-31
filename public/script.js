@@ -29,6 +29,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const authSubmitBtn = document.getElementById("auth-submit");
   const authCancelBtn = document.getElementById("auth-cancel");
 
+  // Other UI elements
+  const notesField = document.getElementById("notes");
+  const scannerDiv = document.getElementById("scanner");
+  const consentDiv = document.getElementById("consent");
+  const consentText = document.getElementById("consent-text");
+  const resultDiv = document.getElementById("result");
+  const totalScansEl = document.getElementById("total-scans");
+  const connectivityStatus = document.getElementById("connectivity-status");
+  const offlineTools = document.getElementById("offline-tools");
+  const syncNowBtn = document.getElementById("sync-now");
+  const exportCsvBtn = document.getElementById("export-csv");
+  const starRating = document.getElementById("star-rating");
+
   function refreshExhibitorUI() {
     if (!exhibitorId || !isAuthenticated) {
       status.textContent = !exhibitorId
@@ -54,17 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
       exhibitorId || "Exhibitor Scan";
     consentText.textContent = `Have you received consent to share these details with exhibitor (ID: ${exhibitorId}) after the event?`;
   }
-  const scannerDiv = document.getElementById("scanner");
-  const consentDiv = document.getElementById("consent");
-  const consentText = document.getElementById("consent-text");
-  const resultDiv = document.getElementById("result");
-  const totalScansEl = document.getElementById("total-scans");
-  const connectivityStatus = document.getElementById("connectivity-status");
-  const offlineTools = document.getElementById("offline-tools");
-  const syncNowBtn = document.getElementById("sync-now");
-  const exportCsvBtn = document.getElementById("export-csv");
-  const starRating = document.getElementById("star-rating");
-  const notesField = document.getElementById("notes");
 
   // Hashing Helper
   async function sha256(message) {
@@ -100,12 +102,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const { passcode_hash } = await response.json();
       const inputHash = await sha256(passcode);
-
-      console.log("Auth Verification:", {
-        id,
-        receivedHash: passcode_hash,
-        computedHash: inputHash,
-      });
 
       if (passcode_hash && inputHash === passcode_hash.toLowerCase().trim()) {
         isAuthenticated = true;

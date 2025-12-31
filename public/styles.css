@@ -381,6 +381,10 @@ textarea:focus {
 }
 
 /* Modal Styles */
+[hidden] {
+  display: none !important;
+}
+
 .modal {
   position: fixed;
   top: 0;
