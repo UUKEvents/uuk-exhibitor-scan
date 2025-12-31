@@ -8,20 +8,21 @@
 :root {
   /* UUK Brand Colors */
   --uuk-blue: #1d70eb;
-  --uuk-light-blue: #cce1ff;
+  --uuk-light-blue: #ebf5ff;
   --uuk-red: #c80645;
   --uuk-green: #02866d;
-  --uuk-black: #171817;
+  --uuk-black: #000000; /* Pure black for UUK brand alignment */
 
-  /* UI Colors */
+  /* UI Colors - Light Mode */
   --primary-blue: var(--uuk-blue);
-  --bg-dark: #0f1218; /* Slightly more solid dark */
-  --surface-solid: #1a1f26;
-  --surface-border: #2d3748;
-  --text-white: #ffffff;
-  --text-muted: #94a3b8;
+  --bg-dark: #ffffff; /* Main background white */
+  --surface-solid: #ffffff;
+  --surface-border: #e2e8f0;
+  --text-white: #171817; /* Now dark text for light mode */
+  --text-muted: #64748b;
   --success-green: var(--uuk-green);
   --error-red: var(--uuk-red);
+  --input-bg: #f8fafc;
 
   /* Professional Spacing & Corners */
   --radius-sm: 4px;
@@ -30,17 +31,18 @@
 }
 
 body {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
+  font-family: "Public Sans", "Inter", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background-color: var(--bg-dark);
   color: var(--text-white);
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   overflow-x: hidden;
+  /* Subtle light gradient at top */
   background-image: linear-gradient(
     180deg,
-    rgba(29, 112, 235, 0.05) 0%,
+    rgba(29, 112, 235, 0.03) 0%,
     transparent 100%
   );
 }
@@ -149,8 +151,8 @@ button:active {
 }
 
 button:disabled {
-  background-color: #2d3748;
-  color: #718096;
+  background-color: #cbd5e1;
+  color: #94a3b8;
   cursor: not-allowed;
 }
 
@@ -165,8 +167,8 @@ button:disabled {
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: var(--text-muted);
+  background: #f1f5f9;
+  border-color: #94a3b8;
 }
 
 #torch-toggle {
@@ -292,9 +294,9 @@ button:disabled {
 }
 
 .btn-tool:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-white);
-  border-color: var(--text-muted);
+  background: #f1f5f9;
+  color: var(--primary-blue);
+  border-color: var(--primary-blue);
 }
 
 /* Session Form Styles */
@@ -318,7 +320,7 @@ button:disabled {
 
 input,
 textarea {
-  background: var(--bg-dark);
+  background: var(--input-bg);
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-sm);
   padding: 0.875rem;
@@ -337,7 +339,16 @@ input:focus,
 textarea:focus {
   outline: none;
   border-color: var(--primary-blue);
-  box-shadow: 0 0 0 2px rgba(29, 112, 235, 0.2);
+  box-shadow: 0 0 0 3px rgba(29, 112, 235, 0.1);
+}
+
+/* Ensure browser autofill doesn't break light mode */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--input-bg) inset !important;
+  -webkit-text-fill-color: var(--text-white) !important;
 }
 
 /* Manual Counter */
@@ -391,7 +402,7 @@ textarea:focus {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
