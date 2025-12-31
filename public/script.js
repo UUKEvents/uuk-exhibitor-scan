@@ -9,19 +9,32 @@ if ("serviceWorker" in navigator) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
-  const exhibitorId = params.get("exhibitor_id");
+  let exhibitorId = params.get("exhibitor_id");
 
   // UI elements
   const startButton = document.getElementById("start");
   const torchToggle = document.getElementById("torch-toggle");
   const status = document.getElementById("status");
+  const changeExhibitorBtn = document.getElementById("change-exhibitor");
 
-  // Mandatory Exhibitor ID Check
-  if (!exhibitorId) {
-    status.textContent = "Error: No Exhibitor ID found. Use a valid link.";
-    status.style.color = "var(--uuk-red)";
-    startButton.disabled = true;
-    return;
+  function refreshExhibitorUI() {
+    if (!exhibitorId) {
+      status.textContent =
+        "Error: No Exhibitor ID found. Use the tool below to set one.";
+      status.style.color = "var(--uuk-red)";
+      startButton.disabled = true;
+      if (changeExhibitorBtn)
+        changeExhibitorBtn.textContent = "Set Exhibitor ID";
+    } else {
+      status.textContent = "Camera inactive";
+      status.style.color = "";
+      startButton.disabled = false;
+      if (changeExhibitorBtn)
+        changeExhibitorBtn.textContent = "Change Exhibitor ID";
+    }
+    document.getElementById("exhibitor-name").textContent =
+      exhibitorId || "Exhibitor Scan";
+    consentText.textContent = `Have you received consent to share these details with exhibitor (ID: ${exhibitorId}) after the event?`;
   }
   const scannerDiv = document.getElementById("scanner");
   const consentDiv = document.getElementById("consent");
@@ -35,9 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const starRating = document.getElementById("star-rating");
   const notesField = document.getElementById("notes");
 
-  document.getElementById("exhibitor-name").textContent =
-    exhibitorId || "Exhibitor Scan";
-  consentText.textContent = `Have you received consent to share these details with exhibitor (ID: ${exhibitorId}) after the event?`;
+  refreshExhibitorUI();
 
   // State
   let ticketId = null;
@@ -121,11 +132,9 @@ document.addEventListener("DOMContentLoaded", () => {
       connectivityStatus.className = "status-indicator offline";
     }
 
-    // Show/hide offline tools based on queue
-    if (queue.length > 0) {
+    // Show tools if queue exists OR if exhibitorId is missing/being changed
+    if (queue.length > 0 || true) {
       offlineTools.hidden = false;
-    } else {
-      offlineTools.hidden = true;
     }
   }
   let isSyncing = false;
@@ -199,6 +208,36 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  });
+
+  changeExhibitorBtn.addEventListener("click", async () => {
+    const queue = getQueue();
+    if (queue.length > 0 && navigator.onLine) {
+      const confirmSync = confirm(
+        `You have ${queue.length} pending scans. Sync them now before changing ID?`
+      );
+      if (confirmSync) {
+        await processQueue();
+      }
+    }
+
+    const newId = prompt("Enter new Exhibitor ID:", exhibitorId || "");
+    if (newId !== null && newId.trim() !== "") {
+      exhibitorId = newId.trim();
+
+      // Update URL without reloading
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.set("exhibitor_id", exhibitorId);
+      window.history.pushState({}, "", newUrl);
+
+      // Reset stats for new ID
+      localStorage.setItem("uuk_scan_total", "0");
+      localStorage.setItem("uuk_last_exhibitor_id", exhibitorId);
+
+      updateTotalScans();
+      refreshExhibitorUI();
+      alert(`Exhibitor ID updated to: ${exhibitorId}. Scan count reset.`);
+    }
   });
 
   window.addEventListener("online", updateConnectivityUI);
