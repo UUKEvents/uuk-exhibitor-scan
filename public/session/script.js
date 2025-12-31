@@ -4,9 +4,12 @@ window.onerror = function (msg, url, lineNo, columnNo, error) {
   return false;
 };
 
-alert("Session Script Loaded");
+const SCRIPT_VERSION = "v3.0.1";
 
 document.addEventListener("DOMContentLoaded", () => {
+  console.log(`Session script ${SCRIPT_VERSION} starting...`);
+  alert(`UUK Session Script ${SCRIPT_VERSION} Loaded`);
+
   try {
     const params = new URLSearchParams(window.location.search);
     const urlExhibitorId = params.get("exhibitor_id");
