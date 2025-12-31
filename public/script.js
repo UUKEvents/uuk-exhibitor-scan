@@ -1,12 +1,15 @@
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOM fully loaded");
+// Service Worker Registration
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/sw.js")
+      .catch((err) => console.error("SW Registration failed:", err));
+  });
+}
 
+document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   const exhibitorId = params.get("exhibitor_id");
-
-  if (exhibitorId) {
-    console.log(`Exhibitor ID loaded: ${exhibitorId}`);
-  }
 
   // UI elements
   const startButton = document.getElementById("start");
@@ -53,7 +56,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Star Rating Logic
-  starRating.querySelectorAll("span").forEach((star) => {
+  const stars = starRating.querySelectorAll("span");
+  stars.forEach((star) => {
     star.addEventListener("click", () => {
       currentRating = parseInt(star.getAttribute("data-value"));
       updateStarUI();
@@ -61,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function updateStarUI() {
-    starRating.querySelectorAll("span").forEach((star) => {
+    stars.forEach((star) => {
       const val = parseInt(star.getAttribute("data-value"));
       star.classList.toggle("active", val === currentRating);
     });
@@ -115,11 +119,13 @@ document.addEventListener("DOMContentLoaded", () => {
       offlineTools.hidden = true;
     }
   }
+  let isSyncing = false;
   async function processQueue() {
-    if (!navigator.onLine) return;
+    if (isSyncing || !navigator.onLine) return;
     const queue = getQueue();
     if (queue.length === 0) return;
 
+    isSyncing = true;
     const payload = queue[0];
     try {
       const response = await fetch("/api/scan", {
@@ -129,15 +135,15 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       if (response.ok) {
-        const remaining = getQueue().filter(
-          (p) => JSON.stringify(p) !== JSON.stringify(payload)
-        );
-        localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(remaining));
-        updateConnectivityUI();
-        processQueue(); // Process next in line
+        const currentQueue = getQueue();
+        currentQueue.shift();
+        localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(currentQueue));
       }
     } catch (e) {
       console.error("Queue sync failed", e);
+    } finally {
+      isSyncing = false;
+      updateConnectivityUI();
     }
   }
 
@@ -204,14 +210,18 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       await html5QrCode.start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
         onScanSuccess
       );
       status.textContent = "Scanning…";
       // Flashlight support check
-      const capabilities = html5QrCode.getRunningTrackCapabilities();
-      if (capabilities.torch) {
-        torchToggle.hidden = false;
+      try {
+        const capabilities = html5QrCode.getRunningTrackCapabilities();
+        if (capabilities && capabilities.torch) {
+          torchToggle.hidden = false;
+        }
+      } catch (capErr) {
+        console.warn("Flashlight support check failed", capErr);
       }
     } catch (err) {
       status.textContent = "Camera failed";

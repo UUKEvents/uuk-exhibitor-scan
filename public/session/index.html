@@ -4,8 +4,15 @@
     <meta charset="UTF-8" />
     <title>Session Attendance - UUK Events</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0f1218" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <meta http-equiv="Permissions-Policy" content="camera=(self)" />
     <link rel="icon" href="/favicon.ico" />
+    <link rel="manifest" href="/manifest.json" />
     <link rel="stylesheet" href="../styles.css" />
     <script src="https://unpkg.com/html5-qrcode/html5-qrcode.min.js"></script>
   </head>
@@ -72,9 +79,21 @@
 
         <div class="secondary-header">Manual Count</div>
         <div class="manual-counter">
-          <button id="manual-minus" class="btn-counter btn-secondary">−</button>
+          <button
+            id="manual-minus"
+            class="btn-counter btn-secondary"
+            aria-label="Decrease manual count"
+          >
+            −
+          </button>
           <span id="manual-count-display">0</span>
-          <button id="manual-plus" class="btn-counter btn-primary">+</button>
+          <button
+            id="manual-plus"
+            class="btn-counter btn-primary"
+            aria-label="Increase manual count"
+          >
+            +
+          </button>
         </div>
 
         <div class="complete-section">
@@ -97,17 +116,17 @@
     </main>
 
     <script>
-      // Force SW Unregister immediately
+      // Service Worker Registration
       if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.getRegistrations().then((registrations) => {
-          for (let registration of registrations) {
-            registration.unregister();
-          }
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/sw.js")
+            .catch((err) => console.error("SW Registration failed:", err));
         });
       }
 
-      // Session UI Logic v3.0.5
-      const SCRIPT_VERSION = "v3.0.5";
+      // Session UI Logic v3.0.8
+      const SCRIPT_VERSION = "v3.0.8";
 
       document.addEventListener("DOMContentLoaded", () => {
         try {
@@ -314,11 +333,13 @@
             offlineTools.hidden = queue.length === 0;
           }
 
+          let isSyncing = false;
           async function processQueue() {
-            if (!navigator.onLine) return;
+            if (isSyncing || !navigator.onLine) return;
             const queue = getQueue();
             if (queue.length === 0) return;
 
+            isSyncing = true;
             const payload = queue[0];
             try {
               const response = await fetch("/api/session", {
@@ -328,16 +349,18 @@
               });
 
               if (response.ok) {
-                const remaining = getQueue().slice(1);
+                const currentQueue = getQueue();
+                currentQueue.shift();
                 localStorage.setItem(
                   SESSION_QUEUE_KEY,
-                  JSON.stringify(remaining)
+                  JSON.stringify(currentQueue)
                 );
-                updateConnectivityUI();
-                processQueue();
               }
             } catch (e) {
               console.error("Session sync failed", e);
+            } finally {
+              isSyncing = false;
+              updateConnectivityUI();
             }
           }
 

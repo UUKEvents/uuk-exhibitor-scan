@@ -1,10 +1,11 @@
-const CACHE_NAME = "uuk-scan-v4";
+const CACHE_NAME = "uuk-scan-v6";
 const ASSETS = [
   "/",
   "/index.html",
   "/styles.css",
   "/script.js",
   "/favicon.ico",
+  "/manifest.json",
   "/UUK_White_RGB.svg",
   "/session/",
   "/session/index.html",
@@ -12,7 +13,6 @@ const ASSETS = [
 ];
 
 self.addEventListener("install", (event) => {
-  console.log("SW: Installing v3...");
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS);
@@ -22,7 +22,6 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
-  console.log("SW: Activating...");
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(

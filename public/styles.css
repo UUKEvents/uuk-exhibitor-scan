@@ -159,15 +159,20 @@ button:disabled {
 }
 
 .btn-secondary {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: var(--surface-solid);
+  border: 1px solid var(--surface-border);
   color: var(--text-white);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--text-muted);
 }
 
 #torch-toggle {
   width: auto;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: var(--surface-solid);
+  border: 1px solid var(--surface-border);
   font-size: 1.25rem;
   padding: 0.5rem 1rem;
 }

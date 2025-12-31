@@ -4,10 +4,17 @@
     <meta charset="UTF-8" />
     <title>Exhibitor QR Scan</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0f1218" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <meta http-equiv="Permissions-Policy" content="camera=(self)" />
 
     <!-- Favicon -->
     <link rel="icon" href="/favicon.ico" />
+    <link rel="manifest" href="/manifest.json" />
 
     <!-- CSS -->
     <link rel="stylesheet" href="styles.css" />
@@ -84,22 +91,6 @@
     </main>
 
     <!-- Custom JS -->
-    <script>
-      // Diagnostic Purge: Kill all Service Workers
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.getRegistrations().then((registrations) => {
-          for (let registration of registrations) {
-            registration.unregister();
-            console.log("SW Unregistered");
-          }
-        });
-      }
-      // Force cache clear for this session
-      if ("caches" in window) {
-        caches.keys().then((names) => {
-          for (let name of names) caches.delete(name);
-        });
-      }
-    </script>
+    <script src="script.js?v=5"></script>
   </body>
 </html>
