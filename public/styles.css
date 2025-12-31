@@ -316,7 +316,8 @@ button:disabled {
   font-weight: 600;
 }
 
-input {
+input,
+textarea {
   background: var(--bg-dark);
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-sm);
@@ -327,7 +328,13 @@ input {
   width: 100%;
 }
 
-input:focus {
+textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+input:focus,
+textarea:focus {
   outline: none;
   border-color: var(--primary-blue);
   box-shadow: 0 0 0 2px rgba(29, 112, 235, 0.2);

@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const syncNowBtn = document.getElementById("sync-now");
   const exportCsvBtn = document.getElementById("export-csv");
   const starRating = document.getElementById("star-rating");
+  const notesField = document.getElementById("notes");
 
   document.getElementById("exhibitor-name").textContent =
     exhibitorId || "Exhibitor Scan";
@@ -172,6 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "Exhibitor ID",
       "Consent",
       "Rating",
+      "Notes",
       "Scanned At",
     ];
     const rows = queue.map((p) => [
@@ -179,6 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
       p.exhibitor_id,
       p.consent,
       p.rating || "0",
+      `"${(p.notes || "").replace(/"/g, '""')}"`, // Handle CSV escaping
       p.scanned_at || new Date().toISOString(),
     ]);
 
@@ -285,6 +288,7 @@ document.addEventListener("DOMContentLoaded", () => {
       html5QrCode.clear();
       html5QrCode = null;
     }
+    notesField.value = "";
     currentRating = 0;
     updateStarUI();
   }
@@ -295,6 +299,7 @@ document.addEventListener("DOMContentLoaded", () => {
       exhibitor_id: exhibitorId,
       consent,
       rating: currentRating,
+      notes: notesField.value.trim(),
       scanned_at: new Date().toISOString(),
     };
 

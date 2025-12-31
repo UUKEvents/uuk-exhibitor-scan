@@ -7,7 +7,8 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "No body provided" });
   }
 
-  const { ticket_id, exhibitor_id, consent, rating, scanned_at } = req.body;
+  const { ticket_id, exhibitor_id, consent, rating, notes, scanned_at } =
+    req.body;
 
   if (!ticket_id || !exhibitor_id) {
     return res.status(400).json({ error: "Missing fields" });
@@ -23,6 +24,7 @@ export default async function handler(req, res) {
     exhibitor_id,
     consent,
     rating: rating || 0,
+    notes: notes || "",
     scanned_at: scanned_at || new Date().toISOString(),
     source: "vercel-exhibitor-scan",
   };
