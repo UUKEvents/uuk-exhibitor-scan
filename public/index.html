@@ -12,11 +12,14 @@
       content="black-translucent"
     />
     <meta http-equiv="Permissions-Policy" content="camera=(self)" />
-    
+
     <!-- Fonts: Public Sans -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Favicon -->
     <link rel="icon" href="/favicon.ico" />
@@ -34,7 +37,17 @@
   <body>
     <!-- Header with logo -->
     <header>
-      <img src="/UUK_Black_RGB.svg" alt="Universities UK logo" />
+      <div style="flex: 1"></div>
+      <img id="uuk-logo" src="/UUK_Black_RGB.svg" alt="Universities UK logo" />
+      <div style="flex: 1; display: flex; justify-content: flex-end">
+        <button
+          id="theme-toggle"
+          class="theme-toggle"
+          aria-label="Toggle dark mode"
+        >
+          🌙
+        </button>
+      </div>
     </header>
 
     <!-- Main content wrapper -->

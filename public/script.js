@@ -7,6 +7,36 @@ if ("serviceWorker" in navigator) {
   });
 }
 
+// Theme Management
+const THEME_KEY = "uuk_theme_preference";
+
+function initTheme() {
+  const savedTheme = localStorage.getItem(THEME_KEY) || "light";
+  document.documentElement.setAttribute("data-theme", savedTheme);
+  updateThemeUI(savedTheme);
+}
+
+function toggleTheme() {
+  const currentTheme =
+    document.documentElement.getAttribute("data-theme") === "dark"
+      ? "light"
+      : "dark";
+  document.documentElement.setAttribute("data-theme", currentTheme);
+  localStorage.setItem(THEME_KEY, currentTheme);
+  updateThemeUI(currentTheme);
+}
+
+function updateThemeUI(theme) {
+  const toggleBtn = document.getElementById("theme-toggle");
+  const logo = document.getElementById("uuk-logo");
+  if (toggleBtn) toggleBtn.textContent = theme === "dark" ? "☀️" : "🌙";
+  if (logo) {
+    logo.src = theme === "dark" ? "/UUK_White_RGB.svg" : "/UUK_Black_RGB.svg";
+  }
+}
+
+initTheme();
+
 document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   const AUTH_KEY = "uuk_auth_verified_id";
@@ -23,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // UI elements
   const startButton = document.getElementById("start");
   const torchToggle = document.getElementById("torch-toggle");
+  const themeToggleBtn = document.getElementById("theme-toggle");
   const status = document.getElementById("status");
   const changeExhibitorBtn = document.getElementById("change-exhibitor");
 
@@ -92,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return true;
       }
       alert(
-        "Authentication requires an internet connection for new or unverified IDs."
+        "Authentication requires an internet connection for new or unverified IDs.",
       );
       return false;
     }
@@ -130,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
         alert(
           "Invalid Passcode for Exhibitor ID: " +
             id +
-            ". Please double check your credentials."
+            ". Please double check your credentials.",
         );
         return false;
       }
@@ -355,7 +386,7 @@ document.addEventListener("DOMContentLoaded", () => {
     link.setAttribute("href", encodedUri);
     link.setAttribute(
       "download",
-      `uuk_scans_backup_${new Date().getTime()}.csv`
+      `uuk_scans_backup_${new Date().getTime()}.csv`,
     );
     document.body.appendChild(link);
     link.click();
@@ -366,7 +397,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const queue = getQueue();
     if (queue.length > 0 && navigator.onLine) {
       const confirmSync = confirm(
-        `You have ${queue.length} pending scans. Sync them now before changing ID?`
+        `You have ${queue.length} pending scans. Sync them now before changing ID?`,
       );
       if (confirmSync) {
         await processQueue();
@@ -375,6 +406,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     showAuthModal();
   });
+
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener("click", toggleTheme);
+  }
 
   window.addEventListener("online", updateConnectivityUI);
   window.addEventListener("offline", updateConnectivityUI);
@@ -397,7 +432,7 @@ document.addEventListener("DOMContentLoaded", () => {
       await html5QrCode.start(
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 250 } },
-        onScanSuccess
+        onScanSuccess,
       );
       status.textContent = "Scanning…";
       // Flashlight support check

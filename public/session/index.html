@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -20,7 +20,17 @@
   </head>
   <body>
     <header>
-      <img src="/UUK_Black_RGB.svg" alt="Universities UK logo" />
+      <div style="flex: 1"></div>
+      <img id="uuk-logo" src="/UUK_Black_RGB.svg" alt="Universities UK logo" />
+      <div style="flex: 1; display: flex; justify-content: flex-end">
+        <button
+          id="theme-toggle"
+          class="theme-toggle"
+          aria-label="Toggle dark mode"
+        >
+          🌙
+        </button>
+      </div>
     </header>
 
     <main>
@@ -130,6 +140,37 @@
       // Session UI Logic v3.0.8
       const SCRIPT_VERSION = "v3.0.8";
 
+      // Theme Management
+      const THEME_KEY = "uuk_theme_preference";
+
+      function initTheme() {
+        const savedTheme = localStorage.getItem(THEME_KEY) || "light";
+        document.documentElement.setAttribute("data-theme", savedTheme);
+        updateThemeUI(savedTheme);
+      }
+
+      function toggleTheme() {
+        const currentTheme =
+          document.documentElement.getAttribute("data-theme") === "dark"
+            ? "light"
+            : "dark";
+        document.documentElement.setAttribute("data-theme", currentTheme);
+        localStorage.setItem(THEME_KEY, currentTheme);
+        updateThemeUI(currentTheme);
+      }
+
+      function updateThemeUI(theme) {
+        const toggleBtn = document.getElementById("theme-toggle");
+        const logo = document.getElementById("uuk-logo");
+        if (toggleBtn) toggleBtn.textContent = theme === "dark" ? "☀️" : "🌙";
+        if (logo) {
+          logo.src =
+            theme === "dark" ? "/UUK_White_RGB.svg" : "/UUK_Black_RGB.svg";
+        }
+      }
+
+      initTheme();
+
       document.addEventListener("DOMContentLoaded", () => {
         try {
           const params = new URLSearchParams(window.location.search);
@@ -149,16 +190,21 @@
           const manualScansEl = document.getElementById("manual-scans");
           const totalCountEl = document.getElementById("total-count");
           const manualCountDisplay = document.getElementById(
-            "manual-count-display"
+            "manual-count-display",
           );
           const manualPlusBtn = document.getElementById("manual-plus");
           const manualMinusBtn = document.getElementById("manual-minus");
           const resultDiv = document.getElementById("result");
           const connectivityStatus = document.getElementById(
-            "connectivity-status"
+            "connectivity-status",
           );
           const offlineTools = document.getElementById("offline-tools");
           const syncNowBtn = document.getElementById("sync-now");
+          const themeToggleBtn = document.getElementById("theme-toggle");
+
+          if (themeToggleBtn) {
+            themeToggleBtn.addEventListener("click", toggleTheme);
+          }
 
           if (urlExhibitorId) {
             exhibitorIdInput.value = urlExhibitorId;
@@ -215,7 +261,7 @@
               await html5QrCode.start(
                 { facingMode: "environment" },
                 { fps: 10, qrbox: { width: 250, height: 250 } },
-                onScanSuccess
+                onScanSuccess,
               );
               status.textContent = "Scanner active";
 
@@ -308,7 +354,7 @@
           function getQueue() {
             try {
               return JSON.parse(
-                localStorage.getItem(SESSION_QUEUE_KEY) || "[]"
+                localStorage.getItem(SESSION_QUEUE_KEY) || "[]",
               );
             } catch (e) {
               return [];
@@ -355,7 +401,7 @@
                 currentQueue.shift();
                 localStorage.setItem(
                   SESSION_QUEUE_KEY,
-                  JSON.stringify(currentQueue)
+                  JSON.stringify(currentQueue),
                 );
               }
             } catch (e) {
