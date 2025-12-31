@@ -1,10 +1,4 @@
-alert("JS Alert: File Content Execution v3.0.2");
-// Diagnostic start
-
-window.onerror = function (msg, url, lineNo, columnNo, error) {
-  alert("Global Error: " + msg + "\nLine: " + lineNo + "\nCol: " + columnNo);
-  return false;
-};
+const SCRIPT_VERSION = "v3.0.3";
 
 document.addEventListener("DOMContentLoaded", () => {
   try {

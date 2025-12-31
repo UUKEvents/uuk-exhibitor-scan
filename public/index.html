@@ -84,11 +84,20 @@
     </main>
 
     <!-- Custom JS -->
-    <script src="script.js"></script>
     <script>
+      // Diagnostic Purge: Kill all Service Workers
       if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker.register("/sw.js");
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (let registration of registrations) {
+            registration.unregister();
+            console.log("SW Unregistered");
+          }
+        });
+      }
+      // Force cache clear for this session
+      if ("caches" in window) {
+        caches.keys().then((names) => {
+          for (let name of names) caches.delete(name);
         });
       }
     </script>

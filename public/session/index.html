@@ -97,12 +97,18 @@
     </main>
 
     <script>
-      alert("HTML Loaded: Inline Diagnostic");
+      // Force SW Unregister
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (let registration of registrations) registration.unregister();
+        });
+      }
     </script>
+    <script src="diagnostic.js?v=1"></script>
     <script
-      src="script.js?v=302"
-      onload="alert('Script Tag: OnLoad Fired')"
-      onerror="alert('Script Tag: OnError Fired - Check Path/Network')"
+      src="script.js?v=303"
+      onload="console.log('Main Script Loaded')"
+      onerror="alert('Main Script Failed')"
     ></script>
   </body>
 </html>
