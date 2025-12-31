@@ -1,4 +1,4 @@
-const CACHE_NAME = "uuk-scan-v3"; // Bumping again
+const CACHE_NAME = "uuk-scan-v4";
 const ASSETS = [
   "/",
   "/index.html",
@@ -8,7 +8,6 @@ const ASSETS = [
   "/UUK_White_RGB.svg",
   "/session/",
   "/session/index.html",
-  "/session/script.js",
   "https://unpkg.com/html5-qrcode/html5-qrcode.min.js",
 ];
 

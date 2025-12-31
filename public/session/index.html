@@ -97,24 +97,19 @@
     </main>
 
     <script>
-      // PHASE 7: ULTIMATE PURGE & INLINE
-      alert("PHASE 7: HTML INITIALIZING...");
-
       // Force SW Unregister immediately
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.getRegistrations().then((registrations) => {
           for (let registration of registrations) {
             registration.unregister();
-            alert("SW REMOVED - REFRESHING RECOMMENDED");
           }
         });
       }
 
-      // Inline Script Version 3.0.4
-      const SCRIPT_VERSION = "v3.0.4";
+      // Session UI Logic v3.0.5
+      const SCRIPT_VERSION = "v3.0.5";
 
       document.addEventListener("DOMContentLoaded", () => {
-        alert("PHASE 7: DOM LOADED - STARTING LOGIC");
         try {
           const params = new URLSearchParams(window.location.search);
           const urlExhibitorId = params.get("exhibitor_id");
@@ -397,6 +392,8 @@
 
             setTimeout(() => location.reload(), 3000);
           });
+
+          syncNowBtn.addEventListener("click", processQueue);
 
           window.addEventListener("online", updateConnectivityUI);
           window.addEventListener("offline", updateConnectivityUI);
