@@ -101,24 +101,29 @@ document.addEventListener("DOMContentLoaded", () => {
       const { passcode_hash } = await response.json();
       const inputHash = await sha256(passcode);
 
-      if (inputHash === passcode_hash) {
+      console.log("Auth Verification:", {
+        id,
+        receivedHash: passcode_hash,
+        computedHash: inputHash,
+      });
+
+      if (passcode_hash && inputHash === passcode_hash.toLowerCase().trim()) {
         isAuthenticated = true;
         exhibitorId = id;
         localStorage.setItem(AUTH_KEY, id);
 
-        // Update URL
         const url = new URL(window.location.href);
         url.searchParams.set("exhibitor_id", id);
-        // We DON'T keep passcode in URL after successful verification for security,
-        // unless you want to keep it. The user said "can still be set via query param".
-        // Let's keep it if it was there, but maybe clear it for safety?
-        // User said "for easy qr code generation", so they probably want it to stay.
         window.history.replaceState({}, "", url);
 
         refreshExhibitorUI();
         return true;
       } else {
-        alert("Invalid Passcode for Exhibitor ID: " + id);
+        alert(
+          "Invalid Passcode for Exhibitor ID: " +
+            id +
+            ". Please double check your credentials."
+        );
         return false;
       }
     } catch (err) {

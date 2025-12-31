@@ -34,10 +34,26 @@ export default async function handler(req, res) {
       throw new Error("n8n auth failed");
     }
 
-    const data = await response.json();
+    let data;
+    const contentType = response.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      data = await response.json();
+    } else {
+      data = await response.text();
+    }
 
-    // We expect { passcode_hash: "..." } from n8n
-    return res.status(200).json({ passcode_hash: data.passcode_hash });
+    // Support multiple possible keys from n8n
+    const hash =
+      typeof data === "object" && data !== null
+        ? data.passcode_hash || data.hash
+        : data;
+
+    if (!hash || (typeof hash === "string" && hash.includes("<!DOCTYPE"))) {
+      console.error("No valid hash found in n8n response:", data);
+      return res.status(500).json({ error: "Invalid response from n8n" });
+    }
+
+    return res.status(200).json({ passcode_hash: hash.toString().trim() });
   } catch (error) {
     clearTimeout(timeoutId);
     console.error("Auth error:", error);
