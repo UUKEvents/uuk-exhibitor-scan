@@ -1,15 +1,12 @@
 // Diagnostic start
+alert("Session Script File Parsed v3.0.1");
+
 window.onerror = function (msg, url, lineNo, columnNo, error) {
   alert("Global Error: " + msg + "\nLine: " + lineNo + "\nCol: " + columnNo);
   return false;
 };
 
-const SCRIPT_VERSION = "v3.0.1";
-
 document.addEventListener("DOMContentLoaded", () => {
-  console.log(`Session script ${SCRIPT_VERSION} starting...`);
-  alert(`UUK Session Script ${SCRIPT_VERSION} Loaded`);
-
   try {
     const params = new URLSearchParams(window.location.search);
     const urlExhibitorId = params.get("exhibitor_id");
