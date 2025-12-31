@@ -15,6 +15,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const startButton = document.getElementById("start");
   const torchToggle = document.getElementById("torch-toggle");
   const status = document.getElementById("status");
+
+  // Mandatory Exhibitor ID Check
+  if (!exhibitorId) {
+    status.textContent = "Error: No Exhibitor ID found. Use a valid link.";
+    status.style.color = "var(--uuk-red)";
+    startButton.disabled = true;
+    return;
+  }
   const scannerDiv = document.getElementById("scanner");
   const consentDiv = document.getElementById("consent");
   const consentText = document.getElementById("consent-text");
@@ -28,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("exhibitor-name").textContent =
     exhibitorId || "Exhibitor Scan";
-  consentText.textContent = `Do you consent to share your details with this exhibitor (ID: ${exhibitorId}) after the event?`;
+  consentText.textContent = `Have you received consent to share these details with exhibitor (ID: ${exhibitorId}) after the event?`;
 
   // State
   let ticketId = null;
