@@ -99,6 +99,10 @@
     <script>
       alert("HTML Loaded: Inline Diagnostic");
     </script>
-    <script src="script.js?v=301"></script>
+    <script
+      src="script.js?v=302"
+      onload="alert('Script Tag: OnLoad Fired')"
+      onerror="alert('Script Tag: OnError Fired - Check Path/Network')"
+    ></script>
   </body>
 </html>

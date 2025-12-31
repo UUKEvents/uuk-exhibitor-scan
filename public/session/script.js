@@ -1,5 +1,5 @@
+alert("JS Alert: File Content Execution v3.0.2");
 // Diagnostic start
-alert("Session Script File Parsed v3.0.1");
 
 window.onerror = function (msg, url, lineNo, columnNo, error) {
   alert("Global Error: " + msg + "\nLine: " + lineNo + "\nCol: " + columnNo);
