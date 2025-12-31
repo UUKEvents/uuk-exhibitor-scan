@@ -368,8 +368,10 @@
 
             if (!navigator.onLine) {
               addToQueue(payload);
-              resultDiv.textContent = "Saved offline. Thank you.";
-              setTimeout(() => location.reload(), 3000);
+              resultDiv.innerHTML = `
+                <p style="color: var(--text-white)">Saved offline. It will sync automatically when you are back online.</p>
+                <button onclick="location.reload()" class="btn-primary" style="margin-top: 1rem">Reset for New Session</button>
+              `;
               return;
             }
 
@@ -381,16 +383,20 @@
               });
 
               if (response.ok) {
-                resultDiv.textContent = "Session submitted successfully!";
+                resultDiv.innerHTML = `
+                  <p>Session submitted successfully!</p>
+                  <button onclick="location.reload()" class="btn-primary" style="margin-top: 1rem">Start New Session</button>
+                `;
               } else {
                 throw new Error("Server error");
               }
             } catch (e) {
               addToQueue(payload);
-              resultDiv.textContent = "Saved offline.";
+              resultDiv.innerHTML = `
+                <p>Saved to offline queue due to server error.</p>
+                <button onclick="location.reload()" class="btn-primary" style="margin-top: 1rem">Reset for New Session</button>
+              `;
             }
-
-            setTimeout(() => location.reload(), 3000);
           });
 
           syncNowBtn.addEventListener("click", processQueue);
