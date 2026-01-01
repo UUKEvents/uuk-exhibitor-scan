@@ -71,10 +71,41 @@
           <button id="start">Start scanning</button>
           <button id="torch-toggle" hidden>🔦</button>
         </div>
+        <button
+          id="show-manual-email"
+          class="btn-secondary"
+          style="margin-top: 1rem"
+        >
+          Enter Email Address Manually
+        </button>
         <p id="status">Camera inactive</p>
       </div>
 
-      <!-- Consent section (hidden until QR scan) -->
+      <!-- Manual Email Entry Section (hidden by default) -->
+      <div id="manual-email" hidden>
+        <div class="consent-card">
+          <p><strong>Manual Entry</strong></p>
+          <p>If the attendee doesn't have a ticket, enter their email below.</p>
+          <div class="input-group" style="margin-top: 1rem">
+            <label for="manual-email-input">Email Address:</label>
+            <input
+              type="email"
+              id="manual-email-input"
+              placeholder="e.g. attendee@example.com"
+            />
+          </div>
+          <div class="consent-buttons">
+            <button id="manual-email-continue" class="btn-primary">
+              Continue to Consent
+            </button>
+            <button id="manual-email-cancel" class="btn-secondary">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Consent section (hidden until QR scan or Manual Email) -->
       <div id="consent" hidden>
         <div class="consent-card">
           <p><strong>Consent</strong></p>

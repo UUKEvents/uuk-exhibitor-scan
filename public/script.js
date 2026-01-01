@@ -64,6 +64,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const authSubmitBtn = document.getElementById("auth-submit");
   const authCancelBtn = document.getElementById("auth-cancel");
 
+  // Manual Email UI
+  const showManualEmailBtn = document.getElementById("show-manual-email");
+  const manualEmailDiv = document.getElementById("manual-email");
+  const manualEmailInput = document.getElementById("manual-email-input");
+  const manualEmailContinueBtn = document.getElementById(
+    "manual-email-continue",
+  );
+  const manualEmailCancelBtn = document.getElementById("manual-email-cancel");
+
   // Other UI elements
   const notesField = document.getElementById("notes");
   const scannerDiv = document.getElementById("scanner");
@@ -473,6 +482,54 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Manual Email Logic
+  showManualEmailBtn.addEventListener("click", async () => {
+    // If scanner is initialized and likely running (startButton is disabled while scanning)
+    if (html5QrCode && startButton.disabled) {
+      try {
+        await html5QrCode.stop();
+        status.textContent = "Scanner stopped for manual entry";
+        isTorchOn = false;
+        torchToggle.textContent = "🔦";
+      } catch (err) {
+        console.warn("Could not stop scanner (may already be stopped):", err);
+      }
+    }
+    scannerDiv.hidden = true;
+    manualEmailDiv.hidden = false;
+  });
+
+  manualEmailCancelBtn.addEventListener("click", () => {
+    manualEmailDiv.hidden = true;
+    scannerDiv.hidden = false;
+    manualEmailInput.value = "";
+    status.textContent = "Camera inactive";
+  });
+
+  manualEmailContinueBtn.addEventListener("click", () => {
+    const email = manualEmailInput.value.trim();
+    if (!email) {
+      alert("Please enter an email address.");
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    ticketId = `MANUAL:${email}`; // Prefix to distinguish from QR scans
+    manualEmailDiv.hidden = true;
+    consentDiv.hidden = false;
+
+    // Haptic feedback
+    if ("vibrate" in navigator) {
+      navigator.vibrate(100);
+    }
+  });
+
   torchToggle.addEventListener("click", async () => {
     if (!html5QrCode) return;
     isTorchOn = !isTorchOn;
@@ -501,6 +558,8 @@ document.addEventListener("DOMContentLoaded", () => {
     notesField.value = "";
     currentRating = 0;
     updateStarUI();
+    manualEmailInput.value = "";
+    manualEmailDiv.hidden = true;
   }
 
   async function handleScanSubmission(consent) {
