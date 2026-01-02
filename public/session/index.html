@@ -429,6 +429,7 @@
               qr_count: qrCount,
               manual_count: manualCount,
               total_count: qrCount + manualCount,
+              barcodes: Array.from(uniqueTicketIds),
               started_at: sessionStartTime,
               completed_at: new Date().toISOString(),
             };

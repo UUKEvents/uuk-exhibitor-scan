@@ -15,6 +15,7 @@ export default async function handler(req, res) {
     total_count,
     started_at,
     completed_at,
+    barcodes,
   } = req.body;
 
   if (!session_name) {
@@ -38,6 +39,7 @@ export default async function handler(req, res) {
     total_count,
     started_at,
     completed_at,
+    barcodes: barcodes || [],
     type: "session_report",
     source: "vercel-session-scan",
   };
