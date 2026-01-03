@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const manualEmailDiv = document.getElementById("manual-email");
   const manualEmailInput = document.getElementById("manual-email-input");
   const manualEmailContinueBtn = document.getElementById(
-    "manual-email-continue",
+    "manual-email-continue"
   );
   const manualEmailCancelBtn = document.getElementById("manual-email-cancel");
 
@@ -84,6 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const offlineTools = document.getElementById("offline-tools");
   const syncNowBtn = document.getElementById("sync-now");
   const exportCsvBtn = document.getElementById("export-csv");
+  const resetDataBtn = document.getElementById("reset-data");
   const starRating = document.getElementById("star-rating");
 
   function refreshExhibitorUI() {
@@ -132,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return true;
       }
       alert(
-        "Authentication requires an internet connection for new or unverified IDs.",
+        "Authentication requires an internet connection for new or unverified IDs."
       );
       return false;
     }
@@ -170,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
         alert(
           "Invalid Passcode for Exhibitor ID: " +
             id +
-            ". Please double check your credentials.",
+            ". Please double check your credentials."
         );
         return false;
       }
@@ -395,7 +396,7 @@ document.addEventListener("DOMContentLoaded", () => {
     link.setAttribute("href", encodedUri);
     link.setAttribute(
       "download",
-      `uuk_scans_backup_${new Date().getTime()}.csv`,
+      `uuk_scans_backup_${new Date().getTime()}.csv`
     );
     document.body.appendChild(link);
     link.click();
@@ -406,7 +407,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const queue = getQueue();
     if (queue.length > 0 && navigator.onLine) {
       const confirmSync = confirm(
-        `You have ${queue.length} pending scans. Sync them now before changing ID?`,
+        `You have ${queue.length} pending scans. Sync them now before changing ID?`
       );
       if (confirmSync) {
         await processQueue();
@@ -416,6 +417,44 @@ document.addEventListener("DOMContentLoaded", () => {
     showAuthModal();
   });
 
+  resetDataBtn.addEventListener("click", () => {
+    const queue = getQueue();
+    if (queue.length > 0 && navigator.onLine) {
+      const confirmSync = confirm(
+        `You have ${queue.length} pending scans. Sync them now before resetting?`
+      );
+      if (confirmSync) {
+        processQueue();
+        // Wait a moment for sync, then prompt again
+        setTimeout(() => {
+          const remainingQueue = getQueue();
+          if (remainingQueue.length > 0) {
+            alert(
+              "Some scans are still pending. Please try again after sync completes."
+            );
+            return;
+          }
+          proceedWithReset();
+        }, 1000);
+        return;
+      }
+    }
+    proceedWithReset();
+  });
+
+  function proceedWithReset() {
+    const confirmReset = confirm(
+      "DANGER: This will clear your total scan count and all pending offline scans. This cannot be undone. Are you sure?"
+    );
+
+    if (confirmReset) {
+      localStorage.setItem("uuk_scan_total", "0");
+      localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify([]));
+      updateTotalScans();
+      updateConnectivityUI();
+      alert("All local data has been reset.");
+    }
+  }
   if (themeToggleBtn) {
     themeToggleBtn.addEventListener("click", toggleTheme);
   }
@@ -441,7 +480,7 @@ document.addEventListener("DOMContentLoaded", () => {
       await html5QrCode.start(
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 250 } },
-        onScanSuccess,
+        onScanSuccess
       );
       status.textContent = "Scanning…";
       // Flashlight support check
