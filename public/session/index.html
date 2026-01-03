@@ -128,6 +128,9 @@
       <!-- Offline Tools Section -->
       <div id="offline-tools" class="offline-tools" hidden>
         <button id="sync-now" class="btn-tool">Sync Pending Sessions</button>
+        <button id="return-main" class="btn-tool" style="margin-top: 1rem">
+          Return to Lead Capture
+        </button>
       </div>
     </main>
 
@@ -169,6 +172,7 @@
           );
           const offlineTools = document.getElementById("offline-tools");
           const syncNowBtn = document.getElementById("sync-now");
+          const returnMainBtn = document.getElementById("return-main");
           const themeToggleBtn = document.getElementById("theme-toggle");
 
           if (themeToggleBtn) {
@@ -336,7 +340,21 @@
           }
 
           function updateStatus() {
-            updateConnectivityUI(getQueue(), connectivityStatus);
+            const queue = getQueue();
+            updateConnectivityUI(queue, connectivityStatus);
+
+            // Always show tools to allow return to main page
+            offlineTools.hidden = false;
+            syncNowBtn.disabled = queue.length === 0;
+          }
+
+          if (returnMainBtn) {
+            returnMainBtn.addEventListener("click", () => {
+              const url = new URL("/", window.location.origin);
+              const eid = exhibitorIdInput.value.trim();
+              if (eid) url.searchParams.set("exhibitor_id", eid);
+              window.location.href = url.toString();
+            });
           }
 
           let isSyncing = false;

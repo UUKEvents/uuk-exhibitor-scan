@@ -63,6 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const offlineTools = document.getElementById("offline-tools");
   const syncNowBtn = document.getElementById("sync-now");
   const exportCsvBtn = document.getElementById("export-csv");
+  const sessionModeBtn = document.getElementById("session-mode");
   const resetDataBtn = document.getElementById("reset-data");
   const starRating = document.getElementById("star-rating");
 
@@ -288,12 +289,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateStatus() {
     updateConnectivityUI(getQueue(), connectivityStatus);
-    // Show tools if queue exists OR if exhibitorId is missing/being changed
-    if (getQueue().length > 0 || !exhibitorId) {
+
+    const queue = getQueue();
+    // Always show tools if we are authenticated, have an ID, or have a queue.
+    // Also show them if we HAVE NO ID, so the user can set one via 'Set Exhibitor ID'.
+    if (isAuthenticated || exhibitorId || queue.length > 0 || !exhibitorId) {
       offlineTools.hidden = false;
     } else {
       offlineTools.hidden = true;
     }
+
+    // Disable sync/export if nothing to process
+    syncNowBtn.disabled = queue.length === 0;
+    exportCsvBtn.disabled = queue.length === 0;
   }
   let isSyncing = false;
   async function processQueue() {
@@ -367,6 +375,14 @@ document.addEventListener("DOMContentLoaded", () => {
     link.click();
     document.body.removeChild(link);
   });
+
+  if (sessionModeBtn) {
+    sessionModeBtn.addEventListener("click", () => {
+      const url = new URL("/session/", window.location.origin);
+      if (exhibitorId) url.searchParams.set("exhibitor_id", exhibitorId);
+      window.location.href = url.toString();
+    });
+  }
 
   changeExhibitorBtn.addEventListener("click", async () => {
     const queue = getQueue();
