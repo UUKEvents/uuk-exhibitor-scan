@@ -1,12 +1,18 @@
+const crypto = require("crypto");
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).end();
   }
 
-  const { exhibitor_id } = req.body;
+  if (!req.body) {
+    return res.status(400).json({ error: "Missing request body" });
+  }
 
-  if (!exhibitor_id) {
-    return res.status(400).json({ error: "Missing exhibitor_id" });
+  const { exhibitor_id, passcode } = req.body;
+
+  if (!exhibitor_id || !passcode) {
+    return res.status(400).json({ error: "Missing exhibitor_id or passcode" });
   }
 
   const webhookUrl = process.env.N8N_AUTH_WEBHOOK_URL;
@@ -28,7 +34,6 @@ export default async function handler(req, res) {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      // Log the error for internal debugging if needed, but return a generic error to user
       const errorText = await response.text();
       console.error("n8n auth error:", errorText);
       throw new Error("n8n auth failed");
@@ -42,7 +47,6 @@ export default async function handler(req, res) {
       data = await response.text();
     }
 
-    // Support multiple possible keys from n8n
     const hash =
       typeof data === "object" && data !== null
         ? data.passcode_hash || data.hash
@@ -58,10 +62,25 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Invalid response from n8n" });
     }
 
-    return res.status(200).json({
-      passcode_hash: hash.toString().trim(),
-      exhibitor_name: name ? name.toString().trim() : null,
-    });
+    // Server-side hash verification
+    const inputHash = crypto
+      .createHash("sha256")
+      .update(passcode)
+      .digest("hex")
+      .toLowerCase();
+
+    const expectedHash = hash.toString().trim().toLowerCase();
+
+    if (inputHash === expectedHash) {
+      return res.status(200).json({
+        verified: true,
+        exhibitor_name: name ? name.toString().trim() : null,
+      });
+    } else {
+      return res
+        .status(401)
+        .json({ verified: false, error: "Invalid passcode" });
+    }
   } catch (error) {
     clearTimeout(timeoutId);
     console.error("Auth error:", error);

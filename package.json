@@ -5,12 +5,16 @@
   "private": true,
   "scripts": {
     "dev": "vercel dev",
-    "start": "serve public"
+    "start": "serve public",
+    "test": "vitest"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "dependencies": {
     "serve": "^14.2.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.0"
   }
 }

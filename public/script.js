@@ -7,33 +7,12 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-// Theme Management
-const THEME_KEY = "uuk_theme_preference";
-
-function initTheme() {
-  const savedTheme = localStorage.getItem(THEME_KEY) || "light";
-  document.documentElement.setAttribute("data-theme", savedTheme);
-  updateThemeUI(savedTheme);
-}
-
-function toggleTheme() {
-  const currentTheme =
-    document.documentElement.getAttribute("data-theme") === "dark"
-      ? "light"
-      : "dark";
-  document.documentElement.setAttribute("data-theme", currentTheme);
-  localStorage.setItem(THEME_KEY, currentTheme);
-  updateThemeUI(currentTheme);
-}
-
-function updateThemeUI(theme) {
-  const toggleBtn = document.getElementById("theme-toggle");
-  const logo = document.getElementById("uuk-logo");
-  if (toggleBtn) toggleBtn.textContent = theme === "dark" ? "☀️" : "🌙";
-  if (logo) {
-    logo.src = theme === "dark" ? "/UUK_White_RGB.svg" : "/UUK_Black_RGB.svg";
-  }
-}
+import {
+  initTheme,
+  toggleTheme,
+  updateConnectivityUI,
+  vibrate,
+} from "./js/utils.js";
 
 initTheme();
 
@@ -115,14 +94,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } (ID: ${exhibitorId || "Unknown"}) after the event?`;
   }
 
-  // Hashing Helper
-  async function sha256(message) {
-    const msgBuffer = new TextEncoder().encode(message);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-  }
-
   async function verifyExhibitor(id, passcode) {
     if (!navigator.onLine) {
       // If offline, check against stored ID
@@ -142,15 +113,23 @@ document.addEventListener("DOMContentLoaded", () => {
       const response = await fetch("/api/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ exhibitor_id: id }),
+        body: JSON.stringify({ exhibitor_id: id, passcode: passcode }),
       });
+
+      if (response.status === 401) {
+        alert(
+          "Invalid Passcode for Exhibitor ID: " +
+            id +
+            ". Please double check your credentials."
+        );
+        return false;
+      }
 
       if (!response.ok) throw new Error("Auth service unavailable");
 
-      const { passcode_hash, exhibitor_name } = await response.json();
-      const inputHash = await sha256(passcode);
+      const { verified, exhibitor_name } = await response.json();
 
-      if (passcode_hash && inputHash === passcode_hash.toLowerCase().trim()) {
+      if (verified) {
         isAuthenticated = true;
         exhibitorId = id;
         exhibitorName = exhibitor_name;
@@ -168,11 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
         refreshExhibitorUI();
         return true;
       } else {
-        alert(
-          "Invalid Passcode for Exhibitor ID: " +
-            id +
-            ". Please double check your credentials."
-        );
+        alert("Authentication failed. Please check your credentials.");
         return false;
       }
     } catch (err) {
@@ -308,26 +283,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const queue = getQueue();
     queue.push(payload);
     localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
-    updateConnectivityUI();
+    updateStatus();
   }
 
-  function updateConnectivityUI() {
-    const queue = getQueue();
-    if (navigator.onLine) {
-      connectivityStatus.textContent = "Online";
-      connectivityStatus.className = "status-indicator online";
-      if (queue.length > 0) {
-        connectivityStatus.textContent = `Syncing (${queue.length})...`;
-        processQueue();
-      }
-    } else {
-      connectivityStatus.textContent = `Offline (${queue.length} pending)`;
-      connectivityStatus.className = "status-indicator offline";
-    }
-
+  function updateStatus() {
+    updateConnectivityUI(getQueue(), connectivityStatus);
     // Show tools if queue exists OR if exhibitorId is missing/being changed
-    if (queue.length > 0 || true) {
+    if (getQueue().length > 0 || !exhibitorId) {
       offlineTools.hidden = false;
+    } else {
+      offlineTools.hidden = true;
     }
   }
   let isSyncing = false;
@@ -354,7 +319,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Queue sync failed", e);
     } finally {
       isSyncing = false;
-      updateConnectivityUI();
+      updateStatus();
     }
   }
 
@@ -451,7 +416,7 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("uuk_scan_total", "0");
       localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify([]));
       updateTotalScans();
-      updateConnectivityUI();
+      updateStatus();
       alert("All local data has been reset.");
     }
   }
@@ -459,9 +424,9 @@ document.addEventListener("DOMContentLoaded", () => {
     themeToggleBtn.addEventListener("click", toggleTheme);
   }
 
-  window.addEventListener("online", updateConnectivityUI);
-  window.addEventListener("offline", updateConnectivityUI);
-  updateConnectivityUI();
+  window.addEventListener("online", updateStatus);
+  window.addEventListener("offline", updateStatus);
+  updateStatus();
 
   // Scanner Logic
   startButton.addEventListener("click", async () => {
@@ -505,9 +470,7 @@ document.addEventListener("DOMContentLoaded", () => {
     scanLocked = true;
 
     // Haptic feedback
-    if ("vibrate" in navigator) {
-      navigator.vibrate(100);
-    }
+    vibrate(100);
 
     try {
       await html5QrCode.stop();
@@ -564,9 +527,7 @@ document.addEventListener("DOMContentLoaded", () => {
     consentDiv.hidden = false;
 
     // Haptic feedback
-    if ("vibrate" in navigator) {
-      navigator.vibrate(100);
-    }
+    vibrate(100);
   });
 
   torchToggle.addEventListener("click", async () => {

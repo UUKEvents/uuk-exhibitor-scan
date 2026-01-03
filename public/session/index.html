@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -14,7 +14,11 @@
     <link rel="icon" href="/favicon.ico" />
     <link rel="manifest" href="/manifest.json" />
     <link rel="stylesheet" href="../styles.css" />
-    <script src="https://unpkg.com/html5-qrcode/html5-qrcode.min.js"></script>
+    <script
+      src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"
+      integrity="sha512-r6rDA7W6ZeQhvl8S7yRVQUKVHdexq+GAlNkNNqVC7YyIV+NwqCTJe2hDWCiffTyRNOeGEzRRJ9ifvRm/HCzGYg=="
+      crossorigin="anonymous"
+    ></script>
     <!-- Vercel Analytics -->
     <script defer src="/_vercel/insights/script.js"></script>
   </head>
@@ -127,48 +131,13 @@
       </div>
     </main>
 
-    <script>
-      // Service Worker Registration
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker
-            .register("/sw.js")
-            .catch((err) => console.error("SW Registration failed:", err));
-        });
-      }
-
-      // Session UI Logic v3.0.8
-      const SCRIPT_VERSION = "v3.0.8";
-
-      // Theme Management
-      const THEME_KEY = "uuk_theme_preference";
-
-      function initTheme() {
-        const savedTheme = localStorage.getItem(THEME_KEY) || "light";
-        document.documentElement.setAttribute("data-theme", savedTheme);
-        updateThemeUI(savedTheme);
-      }
-
-      function toggleTheme() {
-        const currentTheme =
-          document.documentElement.getAttribute("data-theme") === "dark"
-            ? "light"
-            : "dark";
-        document.documentElement.setAttribute("data-theme", currentTheme);
-        localStorage.setItem(THEME_KEY, currentTheme);
-        updateThemeUI(currentTheme);
-      }
-
-      function updateThemeUI(theme) {
-        const toggleBtn = document.getElementById("theme-toggle");
-        const logo = document.getElementById("uuk-logo");
-        if (toggleBtn) toggleBtn.textContent = theme === "dark" ? "☀️" : "🌙";
-        if (logo) {
-          logo.src =
-            theme === "dark" ? "/UUK_White_RGB.svg" : "/UUK_Black_RGB.svg";
-        }
-      }
-
+    <script type="module">
+      import {
+        initTheme,
+        toggleTheme,
+        updateConnectivityUI,
+        vibrate,
+      } from "../js/utils.js";
       initTheme();
 
       document.addEventListener("DOMContentLoaded", () => {
@@ -190,13 +159,13 @@
           const manualScansEl = document.getElementById("manual-scans");
           const totalCountEl = document.getElementById("total-count");
           const manualCountDisplay = document.getElementById(
-            "manual-count-display",
+            "manual-count-display"
           );
           const manualPlusBtn = document.getElementById("manual-plus");
           const manualMinusBtn = document.getElementById("manual-minus");
           const resultDiv = document.getElementById("result");
           const connectivityStatus = document.getElementById(
-            "connectivity-status",
+            "connectivity-status"
           );
           const offlineTools = document.getElementById("offline-tools");
           const syncNowBtn = document.getElementById("sync-now");
@@ -261,7 +230,7 @@
               await html5QrCode.start(
                 { facingMode: "environment" },
                 { fps: 10, qrbox: { width: 250, height: 250 } },
-                onScanSuccess,
+                onScanSuccess
               );
               status.textContent = "Scanner active";
 
@@ -308,9 +277,7 @@
             lastScanTime = now;
 
             // Haptic feedback
-            if ("vibrate" in navigator) {
-              navigator.vibrate(100);
-            }
+            vibrate(100);
 
             // Flash visual feedback
             const scannerEl = document.getElementById("qr-reader");
@@ -354,7 +321,7 @@
           function getQueue() {
             try {
               return JSON.parse(
-                localStorage.getItem(SESSION_QUEUE_KEY) || "[]",
+                localStorage.getItem(SESSION_QUEUE_KEY) || "[]"
               );
             } catch (e) {
               return [];
@@ -365,20 +332,11 @@
             const queue = getQueue();
             queue.push(payload);
             localStorage.setItem(SESSION_QUEUE_KEY, JSON.stringify(queue));
-            updateConnectivityUI();
+            updateStatus();
           }
 
-          function updateConnectivityUI() {
-            const queue = getQueue();
-            if (navigator.onLine) {
-              connectivityStatus.textContent = "Online";
-              connectivityStatus.className = "status-indicator online";
-              if (queue.length > 0) processQueue();
-            } else {
-              connectivityStatus.textContent = `Offline (${queue.length} pending)`;
-              connectivityStatus.className = "status-indicator offline";
-            }
-            offlineTools.hidden = queue.length === 0;
+          function updateStatus() {
+            updateConnectivityUI(getQueue(), connectivityStatus);
           }
 
           let isSyncing = false;
@@ -401,14 +359,14 @@
                 currentQueue.shift();
                 localStorage.setItem(
                   SESSION_QUEUE_KEY,
-                  JSON.stringify(currentQueue),
+                  JSON.stringify(currentQueue)
                 );
               }
             } catch (e) {
               console.error("Session sync failed", e);
             } finally {
               isSyncing = false;
-              updateConnectivityUI();
+              updateStatus();
             }
           }
 
@@ -473,9 +431,9 @@
 
           syncNowBtn.addEventListener("click", processQueue);
 
-          window.addEventListener("online", updateConnectivityUI);
-          window.addEventListener("offline", updateConnectivityUI);
-          updateConnectivityUI();
+          window.addEventListener("online", updateStatus);
+          window.addEventListener("offline", updateStatus);
+          updateStatus();
         } catch (err) {
           alert("Runtime Error: " + err.message);
           console.error(err);
